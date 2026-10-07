@@ -1,0 +1,9 @@
+.project-intro-page { background: #fff; }
+.project-about { max-width: 1280px; margin: 0 auto; padding: 58px 54px 62px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 68px; }
+.project-about-heading > p { margin: 0 0 14px; color: #7292a9; font-size: 10px; letter-spacing: 2px; font-weight: 700; }
+.project-about-heading h2 { margin: 0; color: #224961; font-size: 27px; line-height: 1.5; letter-spacing: -.9px; }
+.project-about-copy > p { margin: 0 0 12px; color: #748794; font-size: 13px; line-height: 1.9; }
+.project-about-actions { display: flex; flex-wrap: wrap; gap: 25px; margin-top: 22px; }
+.project-about-actions button { display: inline-flex; gap: 15px; padding: 5px 0; color: #397caa; font-size: 12px; border-bottom: 1px solid #b6d3e5; }
+.project-about-actions button:hover { color: #075c91; }
+@media (max-width: 720px) { .project-about { grid-template-columns: 1fr; gap: 23px; padding: 34px 24px 40px; } .project-about-heading h2 { font-size: 24px; } .project-about-copy > p { font-size: 12px; } }
