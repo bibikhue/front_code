@@ -30,6 +30,17 @@ test('consumption identities hold for every month at single-won precision', asyn
   assert.equal(latest.perVisitorSpending, 200_000)
 })
 
+test('district visitors and spending have no ties in any month', async () => {
+  const data = await loadTourismOverviewData()
+  for (const row of data.monthly) {
+    assert.equal(new Set(row.districts.map(item => item.visitors)).size, 16, `${row.month} district visitor tie`)
+    assert.equal(new Set(row.districts.map(item => item.spending)).size, 16, `${row.month} district spending tie`)
+    const ranked = [...row.districts].sort((a, b) => b.visitors - a.visitors)
+    assert.equal(ranked[0].name, '해운대구', `${row.month} highest visitor district`)
+    assert(row.topThreeVisitorShare >= 35 && row.topThreeVisitorShare <= 40, `${row.month} top-three visitor share`)
+  }
+})
+
 test('loader rejects inconsistent totals instead of showing an invalid report', () => {
   const raw = structuredClone(tourismOverviewMock)
   raw.monthly[0].industries[0].spending++

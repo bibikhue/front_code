@@ -22,7 +22,7 @@
 .tourism-quick-summary strong { font-size: 11px; color: #4b8ba9; }.tourism-quick-summary p { color: #708da3; line-height: 1.9; font-size: 12px; margin: 8px 0 0; }
 .tourism-overview .panel-heading { flex-wrap: wrap; }
 .tourism-region-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin: 23px 0; }.tourism-region-summary > div { padding: 15px 17px; border-radius: 8px; background: #f2f7fb; }.tourism-region-summary span { display: block; font-size: 11px; color: #819bad; }.tourism-region-summary strong { display: block; margin-top: 10px; font-size: 25px; color: #3b7799; font-variant-numeric: tabular-nums; }.tourism-region-summary p { font-size: 9px; color: #97a9b6; margin: 7px 0 0; }
-.tourism-region-bars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; list-style: none; padding: 0; margin: 0; }
+.tourism-region-bars { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; list-style: none; padding: 0; margin: 0; }
 .tourism-region-bars li { display: grid; grid-template-columns: 83px minmax(20px, 1fr) 98px; align-items: center; gap: 10px; min-width: 0; }
 .tourism-region-name { font-size: 11px; color: #607f94; white-space: nowrap; }.tourism-region-name small { font-size: 9px; color: #9fb3c2; margin-right: 9px; }
 .tourism-bar-track { height: 8px; background: #edf3f8; border-radius: 5px; overflow: hidden; }.tourism-bar-track > span { display: block; height: 100%; border-radius: inherit; background: #a1cadd; }.tourism-bar-track > span.leading { background: #2791bc; }

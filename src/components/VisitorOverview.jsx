@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { monthLabel, numberLabel, rateLabel } from '../data/visitorDemo'
+import { getOverview, monthLabel, numberLabel, rateLabel } from '../data/visitorDemo'
 import { loadTourismOverviewData } from '../data/tourismOverviewData'
 import OverviewTooltip from './OverviewTooltip'
 import OverviewIndustryTrend from './OverviewIndustryTrend'
@@ -92,6 +92,7 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
   const start = selectableMonths.includes(period.start) && period.start <= end ? period.start : selectableMonths.includes(`${end.slice(0, 4)}-01`) ? `${end.slice(0, 4)}-01` : selectableMonths[0]
   const rows = data.monthly.filter(row => row.month >= start && row.month <= end)
   const latest = rows.at(-1)
+  const topCountry = getOverview(end, end).countries.find(country => country.code !== 'ETC')
   const selectedIndustry = latest.industries.find(item => item.code === industryCode) || latest.industries[0]
   const regionRows = [...latest.districts].sort((a, b) => b[regionMetric] - a[regionMetric])
   const regionMax = Math.max(1, ...regionRows.map(row => row[regionMetric]))
@@ -120,11 +121,11 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
         <div className="tourism-section-heading"><div><span>01 · KEY METRICS</span><h2 id="visitor-kpi-title">핵심 지표 요약</h2><p>{monthLabel(end)} 기준{data.isMock ? ' · 예시 자료' : ''}</p></div></div>
         <div className="overview-metrics">
           <MetricCard icon="visitors" label={`${end === data.asOf ? '최근월' : '선택월'} 외국인 방문객 수`} value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent showChangeIndicator infoTooltip={data.visitorDefinition} />
-          <MetricCard icon="trend" label="전년 동월 대비 증감률" value={rateLabel(latest.yoy)} valueChange={latest.yoy} detail={latest.yoy === null ? '전년 동월 자료 없음' : `${monthLabel(`${Number(end.slice(0, 4)) - 1}${end.slice(4)}`)}와 비교`} showChangeIndicator />
+          <MetricCard icon="globe" label="방문객 1위 국가" value={topCountry.name} detail={`${numberLabel(topCountry.visitors)}명 · 전체 대비 ${topCountry.share.toFixed(1)}%`} />
           <MetricCard icon="spending" label="외국인 카드 소비액" value={(latest.spending / 100_000_000).toFixed(1)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator />
           <MetricCard icon="perVisitor" label="1인당 소비액" value={numberLabel(Math.round(latest.perVisitorSpending))} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} />
         </div>
-        <div className="tourism-quick-summary"><strong>{data.isMock ? '예시 자료로 읽는 한눈 요약' : '한눈 요약'}</strong><p>외국인 방문객 {numberLabel(latest.visitors)}명 · 전년 동월 대비 {rateLabel(latest.yoy)} · 카드 소비액 {moneyLabel(latest.spending)}. 아래에서 방문 흐름과 지역·업종별 구성을 확인하세요.</p></div>
+        <div className="tourism-quick-summary"><strong>{data.isMock ? '예시 자료로 읽는 한눈 요약' : '한눈 요약'}</strong><p>외국인 방문객 {numberLabel(latest.visitors)}명 · 전년 동월 대비 {rateLabel(latest.yoy)} · 방문객 1위 국가 {topCountry.name} {numberLabel(topCountry.visitors)}명(전체 대비 {topCountry.share.toFixed(1)}%) · 카드 소비액 {moneyLabel(latest.spending)}. 아래에서 방문 흐름과 지역·업종별 구성을 확인하세요.</p></div>
       </section>
 
       <section id="visitor-trend" className="overview-panel tourism-section trend-panel" tabIndex={-1} aria-labelledby="visitor-trend-title">
