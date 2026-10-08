@@ -39,7 +39,5 @@
 .mice-selected-events .mice-empty { padding: 10px 0 15px; font-size: 11px; }
 .mice-source-note { margin: 17px 0 0; }
 .mice-source-note strong { color: #ae8752; font-weight: 600; }
-.dashboard-outlook-grid { grid-template-columns: minmax(260px, 1fr) minmax(0, 1.7fr); align-items: start; }
-@media (max-width: 1000px) { .dashboard-outlook-grid { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .mice-calendar-body { grid-template-columns: 1fr; gap: 0; } .mice-selected-events { border-left: 0; padding-left: 0; border-top: 1px solid #ecf1f5; padding-top: 17px; } .mice-selected-events ul { max-height: 235px; } }
 @media (max-width: 480px) { .mice-calendar-toolbar { gap: 10px; } .mice-month-controls { gap: 3px; } .mice-calendar select { font-size: 10px; padding: 7px; } .mice-weekdays, .mice-calendar-days { gap: 4px; } .mice-day { height: 51px; padding: 7px 6px; } .mice-density-legend { gap: 7px; font-size: 8px; } .mice-status { font-size: 10px; } }

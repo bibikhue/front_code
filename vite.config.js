@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
   const twitter = (name, content) => ({ tag: 'meta', attrs: { name, content }, injectTo: 'head' })
 
   return {
-    server: { proxy: { '/api/mice': 'http://127.0.0.1:4174' } },
+    server: { proxy: { '/api/mice': 'http://127.0.0.1:4174', '/api/reports': { target: 'http://127.0.0.1:4174', changeOrigin: false }, '/api/chat': { target: 'http://127.0.0.1:4174', changeOrigin: false } } },
     plugins: [
       {
         name: 'mapsosa-sharing-metadata',

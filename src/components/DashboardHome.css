@@ -27,7 +27,7 @@
 .dashboard-card-action { margin-top: auto; color: #487e9e; font-size: 11px; }
 @media (max-width: 760px) { .dashboard-summary-grid { grid-template-columns: 1fr; } .dashboard-analysis-grid { grid-template-columns: 1fr; gap: 10px; } .dashboard-analysis-card { padding: 19px; } .dashboard-section-heading { flex-wrap: wrap; gap: 7px; } .dashboard-market-list { margin: 24px 0; gap: 20px; } }
 @media (max-width: 480px) { .dashboard-reference { flex-direction: row; align-items: baseline; gap: 8px; text-align: left; } .dashboard-reference strong { font-size: 12px; } .dashboard-detail-link { font-size: 10px; } }
-.dashboard-outlook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+.dashboard-outlook-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
 .dashboard-small-eyebrow { color: #6b9fb9 !important; font-size: 9px !important; letter-spacing: 1.6px; margin: 0 0 9px !important; font-weight: 700; }
 .market-view-toggle { width: fit-content; margin-top: 18px; }
 .dashboard-home .market-view-toggle + .dashboard-market-list { margin-top: 23px; }

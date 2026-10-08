@@ -1,0 +1,24 @@
+.events-page { background: #f3f6fa; color: #273e51; min-height: 70svh; }
+.events-source-badge { font-size: 10px; color: #568798; padding: 10px 13px; border: 1px solid #d6e9ed; background: #eef8fa; border-radius: 20px; white-space: nowrap; }
+.events-page-guide { display: flex; gap: 12px; align-items: center; border: 1px solid #dce8f2; background: #edf5fb; padding: 13px 17px; border-radius: 8px; margin-bottom: 20px; }
+.events-page-guide > span { color: #5c93b2; font-size: 20px; }.events-page-guide p { font-size: 11px; line-height: 1.8; color: #7692a5; margin: 0; }
+.events-page .mice-calendar { padding: 28px; }
+.events-page .mice-calendar-toolbar { margin-top: 25px; padding-bottom: 18px; border-bottom: 1px solid #edf2f6; }
+.events-page .mice-calendar select { font-size: 12px; padding: 10px 12px; }
+.events-page .mice-month-controls button { height: 36px; min-width: 32px; }
+.events-page .mice-current-month { font-size: 11px; }
+.events-page .mice-calendar-body { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 28px; margin-top: 23px; }
+.events-page .mice-weekdays, .events-page .mice-calendar-days { gap: 8px; }
+.events-page .mice-weekdays { font-size: 12px; margin-bottom: 13px; }
+.events-page .mice-day { height: 88px; padding: 12px; border-radius: 9px; }
+.events-page .mice-day > span { font-size: 14px; }.events-page .mice-day small { font-size: 11px; }
+.events-page .mice-selected-events { padding-left: 26px; }
+.events-page .mice-selected-events h3 { font-size: 15px; margin-bottom: 18px; }
+.events-page .mice-selected-events ul { max-height: 490px; }
+.events-page .mice-selected-events li { padding: 15px 0; }
+.events-page .mice-selected-events a { font-size: 13px; }.events-page .mice-selected-events p { font-size: 11px; }
+.events-page .mice-event-type { font-size: 10px; }
+.events-page .mice-source-note { font-size: 10px; line-height: 1.9; padding-top: 17px; border-top: 1px solid #edf2f6; }
+@media (max-width: 1000px) { .events-page .mice-calendar { padding: 22px; }.events-page .mice-calendar-body { gap: 20px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }.events-page .mice-day { height: 73px; padding: 10px; }.events-page .mice-selected-events { padding-left: 19px; } }
+@media (max-width: 760px) { .events-page .mice-calendar-body { grid-template-columns: 1fr; gap: 0; }.events-page .mice-selected-events { padding-left: 0; padding-top: 22px; }.events-page .mice-selected-events ul { max-height: 360px; }.events-source-badge { margin-top: 5px; }.events-page .overview-title-row { flex-wrap: wrap; gap: 8px; } }
+@media (max-width: 480px) { .events-page .mice-calendar { padding: 18px 14px; }.events-page .mice-calendar-days, .events-page .mice-weekdays { gap: 5px; }.events-page .mice-day { height: 61px; padding: 8px 6px; border-radius: 6px; }.events-page .mice-day > span { font-size: 12px; }.events-page .mice-day small { font-size: 10px; }.events-page .mice-calendar select { font-size: 11px; padding: 8px; }.events-page .mice-calendar-toolbar { gap: 12px; }.events-page-guide { padding: 11px 13px; }.events-page-guide p { font-size: 10px; } }

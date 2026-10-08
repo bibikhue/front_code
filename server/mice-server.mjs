@@ -1,5 +1,9 @@
 import http from 'node:http'
 import { loadMonth } from './mice-source.mjs'
+import { handleChat } from './chat-route.mjs'
+import { handleReports } from './report-route.mjs'
+
+try { process.loadEnvFile(new URL('../.env.server', import.meta.url)) } catch (error) { if (error.code !== 'ENOENT') throw error }
 
 const port = Number(process.env.MICE_PORT || 4174)
 const cache = new Map()
@@ -21,6 +25,7 @@ function validMonth(month) {
 }
 
 async function getMonth(month) {
+  if (!validMonth(month)) throw new Error('Invalid month')
   const cached = cache.get(month)
   const age = cached ? Date.now() - Date.parse(cached.fetchedAt) : Infinity
   if (age < ttl) return { ...cached, stale: false }
@@ -43,6 +48,10 @@ async function getMonth(month) {
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, 'http://localhost')
+  try {
+    if (await handleReports(request, response, url, { getMonth, send })) return
+    if (await handleChat(request, response, url, { getMonth, send })) return
+  } catch { send(response, 400, { error: '요청 형식을 확인해 주세요.' }); return }
   if (request.method !== 'GET') { send(response, 405, { error: 'GET only' }); return }
   if (url.pathname === '/api/mice/health') { send(response, 200, { status: 'ok' }); return }
   if (url.pathname !== '/api/mice/month') { send(response, 404, { error: 'Not found' }); return }
