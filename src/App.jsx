@@ -6,10 +6,11 @@ import DashboardHome from './components/DashboardHome'
 import DataChatbot from './components/DataChatbot'
 import AnalysisReport from './components/AnalysisReport'
 import EventCalendarPage from './components/EventCalendarPage'
+import CountryTourism from './components/CountryTourism'
 1
 const menus = [
   ['부산 관광 한눈에', '핵심 지표 요약', '월별 방문 추이', '지역별 현황', '업종별 소비'],
-  ['국가별 관광', '국가별 방문 규모', '국가별 관광 특성', '국가별 방문 비중', '국가별 분석 결과'],
+  ['국가별 관광', '국가 비교', '국가별 상세', '계절성 비교', '언어권별 관심 관광지'],
   ['관광수요 전망', '부산 방문객 전망', '국가별 방문객 전망', '예측 정확도'],
   ['분석 리포트', '자동 리포트', '관광수요 주요 변화', '국가별 수요 특징', '정책·마케팅 시사점'],
   ['부산 행사 캘린더', '부산 행사 캘린더'],
@@ -17,9 +18,12 @@ const menus = [
 ]
 const visitorRoutes = { '핵심 지표 요약': 'kpi', '월별 방문 추이': 'trend', '지역별 현황': 'region', '업종별 소비': 'industry' }
 const visitorFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(visitorRoutes).includes(focus) ? focus : 'kpi' }
-const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변화': 'overview', '국가별 수요 특징': 'markets', '정책·마케팅 시사점': 'implications' }
+const countryRoutes = { '국가 비교': 'compare', '국가별 상세': 'detail', '계절성 비교': 'season', '언어권별 관심 관광지': 'interest' }
+const countryFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(countryRoutes).includes(focus) ? focus : 'compare' }
+const countryCode = hash => new URLSearchParams(hash.split('?')[1] || '').get('country')
+const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변화': 'overview', '국가별 수요 특징': 'markets', '국가별 분석 결과': 'markets', '정책·마케팅 시사점': 'implications' }
 const reportFocus = (hash) => new URLSearchParams(hash.split('?')[1] || '').get('focus') || 'overview'
-const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : 'dashboard'
+const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : window.location.hash.split('?')[0] === '#/countries' ? 'countries' : 'dashboard'
 
 const notice = '부산 외국인 관광수요의 흐름을 읽고, 변화와 다음 수요를 전망합니다.'
 const analysisDescriptions = {
@@ -97,7 +101,7 @@ function App() {
   const [page, setPage] = useState(getPage)
   const [pageHash, setPageHash] = useState(() => window.location.hash)
   useEffect(() => {
-    document.title = page === 'events' ? '부산 행사 캘린더 | 맙소사' : page === 'reports' ? '자동 분석 리포트 | 맙소사' : page === 'project' ? '프로젝트 소개 | 맙소사' : page === 'visitors' ? '부산 관광 한눈에 | 맙소사' : '맙소사 | 부산 관광 대시보드'
+    document.title = page === 'events' ? '부산 행사 캘린더 | 맙소사' : page === 'reports' ? '자동 분석 리포트 | 맙소사' : page === 'project' ? '프로젝트 소개 | 맙소사' : page === 'visitors' ? '부산 관광 한눈에 | 맙소사' : page === 'countries' ? '국가별 관광 | 맙소사' : '맙소사 | 부산 관광 대시보드'
   }, [page])
   useEffect(() => {
     const updatePage = () => {
@@ -115,8 +119,23 @@ function App() {
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [])
+  const openCountryHash = destination => {
+    setDialog(null)
+    const hash = destination.startsWith('#') ? destination : `#${destination}`
+    if (window.location.hash === hash) {
+      requestAnimationFrame(() => {
+        const section = document.getElementById(`country-${countryFocus(hash)}`)
+        section?.scrollIntoView({ block: 'start', behavior: 'instant' })
+        section?.focus({ preventScroll: true })
+      })
+    } else window.location.hash = hash.slice(1)
+  }
   const openDialog = (title) => {
     setActiveMenu(null)
+    if (title.startsWith('#/countries')) {
+      openCountryHash(title)
+      return
+    }
     if (Object.hasOwn(visitorRoutes, title)) {
       setDialog(null)
       setPage('visitors')
@@ -124,6 +143,10 @@ function App() {
       if (window.location.hash === `#${destination}`) {
         requestAnimationFrame(() => { const section = document.getElementById(`visitor-${visitorRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
       } else window.location.hash = destination
+      return
+    }
+    if (Object.hasOwn(countryRoutes, title) || title === '국가별 방문 규모') {
+      openCountryHash(`/countries?focus=${countryRoutes[title] || 'compare'}`)
       return
     }
     if (title === '부산 행사 캘린더') {
@@ -176,7 +199,7 @@ function App() {
       <nav className="main-navigation" aria-label="주 메뉴">
         <div className="navigation-inner">
           {menus.map(([title, ...items], index) => <div className="navigation-item" key={title}>
-            <button className={`navigation-button ${activeMenu === index ? 'active' : ((page === 'visitors' && title === '부산 관광 한눈에') || (page === 'project' && title === '프로젝트 소개') || (page === 'reports' && title === '분석 리포트') || (page === 'events' && title === '부산 행사 캘린더')) ? 'current' : ''}`} aria-current={page === 'events' && title === '부산 행사 캘린더' ? 'page' : undefined} aria-expanded={title === '부산 행사 캘린더' ? undefined : activeMenu === index} aria-controls={title === '부산 행사 캘린더' ? undefined : `menu-${index}`} onClick={() => title === '부산 행사 캘린더' ? openDialog(title) : setActiveMenu(activeMenu === index ? null : index)}>{title}{title !== '부산 행사 캘린더' && <Icon name="chevron" />}</button>
+            <button className={`navigation-button ${activeMenu === index ? 'active' : ((page === 'visitors' && title === '부산 관광 한눈에') || (page === 'countries' && title === '국가별 관광') || (page === 'project' && title === '프로젝트 소개') || (page === 'reports' && title === '분석 리포트') || (page === 'events' && title === '부산 행사 캘린더')) ? 'current' : ''}`} aria-current={((page === 'countries' && title === '국가별 관광') || (page === 'events' && title === '부산 행사 캘린더')) ? 'page' : undefined} aria-expanded={title === '부산 행사 캘린더' ? undefined : activeMenu === index} aria-controls={title === '부산 행사 캘린더' ? undefined : `menu-${index}`} onClick={() => title === '부산 행사 캘린더' ? openDialog(title) : setActiveMenu(activeMenu === index ? null : index)}>{title}{title !== '부산 행사 캘린더' && <Icon name="chevron" />}</button>
             {activeMenu === index && <div className="dropdown" id={`menu-${index}`}>{items.map((item) => <button key={item} onClick={() => openDialog(item)}>{item}</button>)}</div>}
           </div>)}
         </div>
@@ -188,7 +211,7 @@ function App() {
       </div></div>
     </header>
     <main className="dashboard-main" aria-label="대시보드" onClick={() => setActiveMenu(null)}>
-      {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro onOpen={openDialog} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
+      {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro onOpen={openDialog} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : <DashboardHome onOpen={openDialog} />}
     </main>
     <Footer onOpen={openDialog} />
     <DataChatbot />

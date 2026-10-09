@@ -19,18 +19,20 @@ function OverviewIcon({ name }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
 }
 
-export function MetricCard({ icon, label, value, unit, detail, change, accent, showChangeIndicator = false, valueChange, infoTooltip }) {
-  return <article className={`overview-metric ${accent ? 'overview-metric-accent' : ''}`}>
+export function MetricCard({ icon, label, value, unit, detail, change, accent, showChangeIndicator = false, valueChange, infoTooltip, href, actionText }) {
+  const Card = href ? 'a' : 'article'
+  return <Card className={`overview-metric ${accent ? 'overview-metric-accent' : ''}${href ? ' metric-card-link' : ''}`} href={href}>
     <div className="metric-heading"><span>{label}</span><span className="metric-icon"><OverviewIcon name={icon} /></span></div>
     <p className={`metric-value${showChangeIndicator && valueChange !== undefined && valueChange !== null ? valueChange < 0 ? ' metric-value-decrease' : ' metric-value-increase' : ''}`}>{showChangeIndicator && valueChange !== undefined && valueChange !== null && <span className="metric-value-arrow" aria-hidden="true">{valueChange > 0 ? '↑' : valueChange < 0 ? '↓' : '→'}</span>}{value}<span>{unit}</span>{infoTooltip && <OverviewTooltip label={`${label} 집계 기준 안내`} text={infoTooltip} />}</p>
     <div className="metric-detail">{change !== undefined && <span className={change < 0 ? 'metric-change decrease' : 'metric-change'}>{showChangeIndicator && change !== null && <span aria-hidden="true">{change > 0 ? '↑ ' : change < 0 ? '↓ ' : '→ '}</span>}{rateLabel(change)}</span>}<span>{detail}</span></div>
-  </article>
+    {actionText && <span className="metric-card-action">{actionText}</span>}
+  </Card>
 }
 
-export function MonthlyChart({ rows, compare, isExample = true }) {
+export function MonthlyChart({ rows, compare, isExample = true, color = '#1687ca', compact = false }) {
   const [hoveredMonth, setHoveredMonth] = useState(null)
   const selected = rows.find((row) => row.month === hoveredMonth) || rows.at(-1)
-  const width = 760, height = 275, left = 48, right = 20, top = 20, bottom = 38
+  const width = compact ? 340 : 760, height = compact ? 220 : 275, left = compact ? 42 : 48, right = compact ? 10 : 20, top = 20, bottom = compact ? 32 : 38
   const max = Math.ceil(Math.max(...rows.map((row) => Math.max(row.visitors, compare ? row.previousYear || 0 : 0))) / 100000) * 100000
   const x = (index) => rows.length === 1 ? (width + left - right) / 2 : left + index * (width - left - right) / (rows.length - 1)
   const y = (value) => height - bottom - value / max * (height - top - bottom)
@@ -39,18 +41,18 @@ export function MonthlyChart({ rows, compare, isExample = true }) {
   return <>
     <div className="chart-readout"><span>{monthLabel(selected.month)}</span><strong>{numberLabel(selected.visitors)} <small>명</small></strong><span className="chart-readout-growth">전년 동월 {rateLabel(selected.yoy)}</span></div>
     <svg className="monthly-chart" viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`${isExample ? '예시 데이터의 ' : ''}월별 외국인 방문객 추이. 차트와 표 전환에서 수치를 확인할 수 있습니다.`}>
-      <defs><linearGradient id="visitor-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1687ca" stopOpacity=".2" /><stop offset="100%" stopColor="#1687ca" stopOpacity=".01" /></linearGradient></defs>
+      <defs><linearGradient id="visitor-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity=".2" /><stop offset="100%" stopColor={color} stopOpacity=".01" /></linearGradient></defs>
       {[0, 1, 2, 3, 4].map((tick) => <g key={tick}><line x1={left} x2={width - right} y1={y(max * tick / 4)} y2={y(max * tick / 4)} stroke="#e9eef3" strokeDasharray={tick ? '3 4' : undefined} /><text x={left - 10} y={y(max * tick / 4) + 4} textAnchor="end" fill="#8595a4" fontSize="11">{max * tick / 4 / 10000}만</text></g>)}
       <path d={area} fill="url(#visitor-area)" />
       {compare && <polyline points={rows.map((row, i) => `${x(i)},${y(row.previousYear || 0)}`).join(' ')} fill="none" stroke="#a8b9ca" strokeWidth="2" strokeDasharray="5 5" />}
-      <polyline points={points} fill="none" stroke="#1687ca" strokeWidth="3" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" />
       {rows.map((row, i) => <g key={row.month}>
-        {(i % Math.ceil(rows.length / 6) === 0 || i === rows.length - 1) && <text x={x(i)} y={height - 10} textAnchor="middle" fill="#8595a4" fontSize="11">{row.month.replace('-', '.')}</text>}
-        <circle cx={x(i)} cy={y(row.visitors)} r={selected.month === row.month ? 5 : 3} fill="white" stroke="#1687ca" strokeWidth="2" />
+        {(i % Math.ceil(rows.length / 6) === 0 || i === rows.length - 1) && <text x={x(i)} y={height - 10} textAnchor="middle" fill="#8595a4" fontSize="11">{compact ? `${Number(row.month.slice(5))}월` : row.month.replace('-', '.')}</text>}
+        <circle cx={x(i)} cy={y(row.visitors)} r={selected.month === row.month ? 5 : 3} fill="white" stroke={color} strokeWidth="2" />
         <circle cx={x(i)} cy={y(row.visitors)} r="13" fill="transparent" tabIndex="0" aria-label={`${monthLabel(row.month)}, ${numberLabel(row.visitors)}명, 전년 동월 대비 ${rateLabel(row.yoy)}`} onMouseEnter={() => setHoveredMonth(row.month)} onMouseLeave={() => setHoveredMonth(null)} onFocus={() => setHoveredMonth(row.month)} onBlur={() => setHoveredMonth(null)}><title>{monthLabel(row.month)} · {numberLabel(row.visitors)}명</title></circle>
       </g>)}
     </svg>
-    <div className="chart-legend"><span><i className="legend-current" />선택 기간</span>{compare && <span><i className="legend-previous" />전년 동월</span>}<span className="chart-unit">단위: 명{isExample && ' · 예시 데이터'}</span></div>
+    <div className="chart-legend"><span><i className="legend-current" style={{ background: color }} />선택 기간</span>{compare && <span><i className="legend-previous" />전년 동월</span>}<span className="chart-unit">단위: 명{isExample && ' · 예시 데이터'}</span></div>
   </>
 }
 
@@ -121,7 +123,7 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
         <div className="tourism-section-heading"><div><span>01 · KEY METRICS</span><h2 id="visitor-kpi-title">핵심 지표 요약</h2><p>{monthLabel(end)} 기준{data.isMock ? ' · 예시 자료' : ''}</p></div></div>
         <div className="overview-metrics">
           <MetricCard icon="visitors" label={`${end === data.asOf ? '최근월' : '선택월'} 외국인 방문객 수`} value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent showChangeIndicator infoTooltip={data.visitorDefinition} />
-          <MetricCard icon="globe" label="방문객 1위 국가" value={topCountry.name} detail={`${numberLabel(topCountry.visitors)}명 · 전체 대비 ${topCountry.share.toFixed(1)}%`} />
+          <MetricCard icon="globe" label="방문객 1위 국가" value={topCountry.name} detail={`${numberLabel(topCountry.visitors)}명 · 전체 대비 ${topCountry.share.toFixed(1)}%`} href={`#/countries?focus=detail&country=${encodeURIComponent(topCountry.code)}`} actionText="국가별 상세 보기 ↗" />
           <MetricCard icon="spending" label="외국인 카드 소비액" value={(latest.spending / 100_000_000).toFixed(1)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator />
           <MetricCard icon="perVisitor" label="1인당 소비액" value={numberLabel(Math.round(latest.perVisitorSpending))} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} />
         </div>

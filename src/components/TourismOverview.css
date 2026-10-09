@@ -2,6 +2,10 @@
    MetricCard and MonthlyChart keep their original default appearance. */
 .tourism-overview .overview-panel, .tourism-overview .overview-metric { border-color: #e1eaf1; border-radius: 13px; }
 .tourism-overview .overview-metric-accent { border-color: #c4dfef; }
+.tourism-overview a.overview-metric { display: block; color: inherit; text-decoration: none; }
+.tourism-overview a.overview-metric:hover { border-color: #8bc4e0; background: #f4faff; }
+.tourism-overview a.overview-metric:focus-visible { outline: 3px solid #1687ca; outline-offset: 3px; }
+.tourism-overview .metric-card-action { display: block; margin-top: 10px; color: #167fa8; font-size: 10px; font-weight: 600; }
 .tourism-data-reference { display: grid; gap: 7px; font-size: 11px; color: #6085a0; text-align: right; flex-shrink: 0; }
 .tourism-data-reference strong { font-weight: 600; }.tourism-data-reference span { font-size: 10px; color: #92a5b3; }
 .tourism-section-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 19px; }
