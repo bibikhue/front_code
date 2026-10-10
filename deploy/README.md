@@ -11,6 +11,16 @@ Nginx가 `/var/www/mapsosa/current`의 빌드 결과만 제공합니다.
 - 적용된 설정: `/etc/nginx/conf.d/mapsosa-ip.conf`
 - 첫 배포: `/var/www/mapsosa/releases/20261007-0710`
 
+## 한 줄로 배포하기 (권장)
+
+내 컴퓨터 터미널(`E:\Dashboard_Holymolly\front_code>`)에서 GitHub에 올린 뒤, 아래 한 줄을 실행합니다.
+
+```
+ssh ec2-54-253-247-179.ap-southeast-2.compute.amazonaws.com "bash ~/my-app/deploy/deploy.sh"
+```
+
+`deploy/deploy.sh`가 최신 코드 받기 → (필요하면 npm ci) → lint → build → 새 버전 교체 → 오래된 버전 정리(최근 5개 유지)를 순서대로 실행합니다. 중간에 실패하면 바로 멈추고 공개 사이트는 이전 버전 그대로 유지됩니다. 마지막 줄에 `== 배포 완료`가 나오면 성공입니다. 아래의 수동 절차는 스크립트가 하는 일과 같습니다.
+
 ## 수정 후 다시 배포
 
 프로젝트 루트에서 다음 명령을 실행합니다. 시스템 배포 경로에 쓰기 위해 sudo 권한이 필요합니다.

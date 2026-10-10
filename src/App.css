@@ -149,3 +149,60 @@
 }
 
 .navigation-button.current { color: #0068a9; }
+
+@media (min-width: 721px) and (max-width: 950px) {
+  .navigation-inner { padding: 0 16px; gap: 6px; overflow: visible; }
+  .navigation-item { position: relative; min-width: 0; }
+  .navigation-button { gap: 3px; font-size: clamp(12px, 1.35vw, 13px); letter-spacing: -.75px; }
+  .navigation-button svg { width: 12px; height: 12px; flex: none; }
+  .dropdown { top: 100%; left: 0; width: min(205px, calc(100vw - 32px)); }
+  .navigation-item:last-child .dropdown { left: auto; right: 0; }
+  .main-navigation:has(.dropdown) { padding-bottom: 191px; }
+}
+
+@media (max-width: 720px) {
+  .navigation-inner {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(44px, auto);
+    align-items: stretch;
+    justify-content: stretch;
+    height: auto;
+    padding: 0 18px;
+    gap: 0;
+    overflow: visible;
+  }
+  .navigation-item { display: contents; }
+  .navigation-item > .navigation-button {
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 2px;
+    gap: 3px;
+    font-size: clamp(11px, 1.8vw, 13px);
+    line-height: 1.2;
+    letter-spacing: -.6px;
+  }
+  .navigation-button svg { width: 12px; height: 12px; flex: none; }
+  .navigation-item:nth-child(1) > .navigation-button { grid-row: 1; grid-column: 1; }
+  .navigation-item:nth-child(2) > .navigation-button { grid-row: 1; grid-column: 2; }
+  .navigation-item:nth-child(3) > .navigation-button { grid-row: 1; grid-column: 3; }
+  .navigation-item:nth-child(4) > .navigation-button { grid-row: 2; grid-column: 1; }
+  .navigation-item:nth-child(5) > .navigation-button { grid-row: 2; grid-column: 2; }
+  .navigation-item:nth-child(6) > .navigation-button { grid-row: 2; grid-column: 3; }
+  .navigation-inner .dropdown,
+  .navigation-item:last-child .dropdown {
+    position: static;
+    grid-row: 3;
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 0 8px;
+    left: auto;
+    right: auto;
+    top: auto;
+  }
+  .navigation-inner:has(> .navigation-item:nth-child(-n+3) > .dropdown) .dropdown { grid-row: 2; }
+  .navigation-inner:has(> .navigation-item:nth-child(-n+3) > .dropdown) > .navigation-item:nth-child(n+4) > .navigation-button { grid-row: 3; }
+}
