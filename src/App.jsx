@@ -24,9 +24,11 @@ const countryFocus = hash => { const focus = new URLSearchParams(hash.split('?')
 const countryCode = hash => new URLSearchParams(hash.split('?')[1] || '').get('country')
 const outlookRoutes = { '부산 방문객 전망': 'busan', '국가별 방문객 전망': 'countries', '예측 정확도': 'accuracy' }
 const outlookFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(outlookRoutes).includes(focus) ? focus : 'busan' }
+const projectRoutes = { '프로젝트 소개': 'about', '팀 맙소사 소개': 'about', '분석 범위 안내': 'scope', '데이터 출처·기준': 'data' }
+const projectFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(projectRoutes).includes(focus) ? focus : 'about' }
 const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변화': 'overview', '국가별 수요 특징': 'markets', '국가별 분석 결과': 'markets', '정책·마케팅 시사점': 'implications' }
 const reportFocus = (hash) => new URLSearchParams(hash.split('?')[1] || '').get('focus') || 'overview'
-const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : window.location.hash.split('?')[0] === '#/countries' ? 'countries' : window.location.hash.split('?')[0] === '#/outlook' ? 'outlook' : 'dashboard'
+const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash.split('?')[0] === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : window.location.hash.split('?')[0] === '#/countries' ? 'countries' : window.location.hash.split('?')[0] === '#/outlook' ? 'outlook' : 'dashboard'
 
 const notice = '부산 외국인 관광수요의 흐름을 읽고, 변화와 다음 수요를 전망합니다.'
 const analysisDescriptions = {
@@ -160,6 +162,14 @@ function App() {
       } else window.location.hash = destination
       return
     }
+    if (Object.hasOwn(projectRoutes, title)) {
+      setDialog(null)
+      const destination = `/project?focus=${projectRoutes[title]}`
+      if (window.location.hash === `#${destination}`) {
+        requestAnimationFrame(() => { const section = document.getElementById(`project-${projectRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
+      } else window.location.hash = destination
+      return
+    }
     if (title === '부산 행사 캘린더') {
       setDialog(null)
       setPage('events')
@@ -174,11 +184,10 @@ function App() {
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
-    if (title === '전체 방문 현황' || title === '프로젝트 소개' || title === '팀 맙소사 소개') {
+    if (title === '전체 방문 현황') {
       setDialog(null)
-      const destination = title === '전체 방문 현황' ? 'visitors' : 'project'
-      setPage(destination)
-      window.location.hash = `/${destination}`
+      setPage('visitors')
+      window.location.hash = '/visitors'
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
@@ -222,7 +231,7 @@ function App() {
       </div></div>
     </header>
     <main className="dashboard-main" aria-label="대시보드" onClick={() => setActiveMenu(null)}>
-      {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro onOpen={openDialog} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
+      {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro focus={projectFocus(pageHash)} navigationKey={pageHash} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
     </main>
     <Footer onOpen={openDialog} />
     <DataChatbot />
@@ -230,9 +239,6 @@ function App() {
       <section className="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" onClick={(event) => event.stopPropagation()}>
         <div className="modal-heading"><h1 id="dialog-title">{dialog}</h1><button autoFocus aria-label="닫기" onClick={() => setDialog(null)}><Icon name="close" /></button></div>
         {dialog === '사이트맵' ? <div className="sitemap">{menus.map(([title, ...items]) => <div key={title}><h2>{title}</h2>{items.map((item) => <button key={item} onClick={() => openDialog(item)}>{item}</button>)}</div>)}</div>
-          : dialog === '데이터 출처·기준' ? <><p>프로젝트 자료에 제시된 활용 예정 데이터입니다. 실제 화면 연동 시 자료별 기간, 갱신 시점과 집계 기준을 표시합니다.</p><ul className="data-source-list"><li><strong>부산관광공사</strong><span>외국인 관광객 부산 방문 동향 · 월별 방문객 자료</span></li><li><strong>한국관광 데이터랩</strong><span>부산 월별·국적별 외국인 방문자 자료</span></li><li><strong>관광지식정보시스템</strong><span>외래관광객조사 · 체류기간 등 특성 자료</span></li><li><strong>출입국·외국인정책본부</strong><span>비자별 외국인 입국자 · 전국 단위 참고 자료</span></li></ul><p>서로 다른 출처의 방문자 수는 집계 방식 확인 없이 합산하지 않습니다. 전국 입국 자료는 부산 방문객의 특성으로 직접 해석하지 않습니다.</p></>
-          : dialog === '분석 범위 안내' ? <><p><strong>1차 분석 대상은 부산 전체의 외국인 관광수요입니다.</strong> 월별 방문객 수를 중심으로 국가별 특성, 계절성·변동성, 시장구조, 이상수요와 향후 수요를 분석합니다.</p><p>관광소비는 현재 데이터 확보 단계입니다. 부산 단위 국가별·업종별 소비 비중의 기간과 집계 기준을 확인한 뒤, 소비 구조가 비슷한 국가를 묶는 분석을 검토합니다. 개인 관광객의 소비 유형 군집은 개인별 자료가 확보된 경우에 진행합니다. 출발 국가의 권역 비교와 부산 내 구·군 비교는 구분하며, 구·군·성별·연령·체류기간은 자료 확보 후 확장합니다.</p></>
-          : dialog === '팀 맙소사 소개' ? <><p className="project-tagline">감탄을 자아내는 인사이트, 팀 맙소사.</p><p>외국인 관광수요 패턴 및 변화 분석을 통해 부산 관광의 구조적 변화와 잠재 리스크를 살펴보는 데이터 분석·시각화·대시보드 개발 프로젝트입니다.</p><p>부산시 관광정책 담당자와 소상공인이 수요 변화를 이해하고 대응 시점과 우선순위를 판단할 수 있도록 돕습니다.</p></>
           : analysisDescriptions[dialog] ? <><p>{analysisDescriptions[dialog]}</p><p className="analysis-status">분석 화면 구성안입니다. 실제 지표와 차트는 검증된 데이터 연동 후 제공합니다.</p></>
           : dialog === '검색 결과' ? <><p>“{query}” 메뉴 검색 결과</p>{menus.flatMap((menu) => menu.slice(1)).filter((item) => item.includes(query.trim())).map((item) => <button className="search-result" key={item} onClick={() => openDialog(item)}>{item}<span>›</span></button>)}{!menus.some((menu) => menu.slice(1).some((item) => item.includes(query.trim()))) && <p>일치하는 메뉴가 없습니다. 다른 검색어를 입력해 주세요.</p>}</>
           : <p>{dialog} 서비스는 준비 중입니다.</p>}
