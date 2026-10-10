@@ -4,6 +4,11 @@ import { monthLabel, numberLabel } from '../data/visitorDemo.js'
 
 const pointString = (rows, x, y, value) => rows.map((row, index) => `${x(index)},${y(row[value])}`).join(' ')
 const forecastLabel = value => `${numberLabel(Math.round(value / 1000) * 1000)}명`
+const rangeLabel = (row, level) => {
+  const lower = forecastLabel(row[`lower_${level}`])
+  const upper = forecastLabel(row[`upper_${level}`])
+  return lower === upper ? `약 ${lower}` : `${lower}~${upper}`
+}
 
 export function ForecastBandChart({ actualRows, forecastRows, color = '#1687ca' }) {
   if (!actualRows.length || !forecastRows.length) return <p>표시할 예측 자료가 없습니다.</p>
@@ -33,7 +38,7 @@ export function ForecastBandChart({ actualRows, forecastRows, color = '#1687ca' 
       <polyline points={actualPoints} fill="none" stroke="#426276" strokeWidth="2.7" strokeLinejoin="round" />
       <polyline points={forecastPoints} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" />
       {actualRows.map((row, index) => <circle key={row.month} cx={x(index)} cy={y(row.visitors)} r="3" fill="#fff" stroke="#426276" strokeWidth="1.8"><title>{`${monthLabel(row.month)} 실제 ${numberLabel(row.visitors)}명`}</title></circle>)}
-      {forecastRows.map((row, index) => <circle key={row.target_month} cx={x(boundary + index)} cy={y(row.forecast)} r="3.5" fill="#fff" stroke={color} strokeWidth="2"><title>{`${monthLabel(row.target_month)} 예측 ${forecastLabel(row.forecast)}, 80% ${forecastLabel(row.lower_80)}~${forecastLabel(row.upper_80)}, 95% ${forecastLabel(row.lower_95)}~${forecastLabel(row.upper_95)}`}</title></circle>)}
+      {forecastRows.map((row, index) => <circle key={row.target_month} cx={x(boundary + index)} cy={y(row.forecast)} r="3.5" fill="#fff" stroke={color} strokeWidth="2"><title>{`${monthLabel(row.target_month)} 예측 ${forecastLabel(row.forecast)}, 80% ${rangeLabel(row, 80)}, 95% ${rangeLabel(row, 95)}`}</title></circle>)}
     </svg>
   </div>
 }

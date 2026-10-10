@@ -82,7 +82,7 @@
 ```
 npm run lint
 npm run build
-node --test tests/
+node --test "tests/*.test.mjs"
 ```
 
 완료 보고에는 다음을 포함한다.

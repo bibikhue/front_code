@@ -28,7 +28,7 @@ export default function DashboardHome({ onOpen }) {
       </section>
       <div className="dashboard-summary-grid">
         <section className="overview-panel" aria-labelledby="home-trend-title">
-          <div className="panel-heading"><div><h2 id="home-trend-title">최근 방문 흐름</h2><p>최근 6개월 · 예시 데이터</p></div><a className="dashboard-detail-link" href="#/visitors">전체 방문 현황 ↗</a></div>
+          <div className="panel-heading"><div><h2 id="home-trend-title">최근 방문 흐름</h2><p>최근 6개월 · 예시 데이터</p></div><a className="dashboard-detail-link" href="#/visitors">부산 관광 한눈에 ↗</a></div>
           <MonthlyChart rows={recent.rows} compare={false} />
         </section>
         <section className="overview-panel" aria-labelledby="home-markets-title">
@@ -42,8 +42,8 @@ export default function DashboardHome({ onOpen }) {
       <section className="dashboard-analysis" aria-labelledby="home-analysis-title">
         <div className="dashboard-section-heading"><h2 id="home-analysis-title">분석 이어보기</h2><p>방문 현황에서 수요 전망과 분석 결과까지</p></div>
         <div className="dashboard-analysis-grid">
-          <a className="dashboard-analysis-card" href="#/visitors"><span className="dashboard-card-category">방문 현황 <span>↗</span></span><h3>기간별로 자세히 살펴보기</h3><p>조회 기간을 선택하고 전년 비교, 상세 표와 CSV를 확인하세요.</p><span className="dashboard-card-action">전체 방문 현황</span></a>
-          <button className="dashboard-analysis-card" onClick={() => onOpen('부산 방문객 전망')}><span className="dashboard-card-category">관광수요 전망 <span>구성 준비 중</span></span><h3>관광의 다음 흐름</h3><p>향후 방문객 전망과 예측 범위를 제공할 예정입니다.</p><span className="dashboard-card-action">전망 구성 안내 ↗</span></button>
+          <a className="dashboard-analysis-card" href="#/visitors"><span className="dashboard-card-category">방문 현황 <span>↗</span></span><h3>기간별로 자세히 살펴보기</h3><p>조회 기간을 선택하고 전년 비교, 상세 표와 CSV를 확인하세요.</p><span className="dashboard-card-action">부산 관광 한눈에</span></a>
+          <a className="dashboard-analysis-card" href="#/outlook?focus=busan"><span className="dashboard-card-category">관광수요 전망 <span>기준 예측 제공</span></span><h3>관광의 다음 흐름</h3><p>기준 예측과 80%·95% 예측 범위, 예측 정확도를 확인하세요.</p><span className="dashboard-card-action">부산 방문객 전망 보기 ↗</span></a>
           <button className="dashboard-analysis-card" onClick={() => onOpen('자동 리포트')}><span className="dashboard-card-category">분석 리포트 <span>자동 요약</span></span><h3>변화를 읽는 인사이트</h3><p>기간과 국가를 선택해 방문 흐름과 시장 구성을 요약하세요.</p><span className="dashboard-card-action">자동 리포트 만들기 ↗</span></button>
         </div>
       </section>

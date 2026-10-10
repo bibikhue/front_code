@@ -13,7 +13,11 @@ const sections = [
 const validFocus = focus => sections.some(([key]) => key === focus) ? focus : 'busan'
 const percent = value => value == null ? '—' : `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
 const forecastLabel = value => `${numberLabel(Math.round(value / 1000) * 1000)}명`
-const rangeLabel = (row, level) => `${forecastLabel(row[`lower_${level}`])}~${forecastLabel(row[`upper_${level}`])}`
+const rangeLabel = (row, level) => {
+  const lower = forecastLabel(row[`lower_${level}`])
+  const upper = forecastLabel(row[`upper_${level}`])
+  return lower === upper ? `약 ${lower}` : `${lower}~${upper}`
+}
 const hasNarrowRange = rows => rows.some(row =>
   row.forecast > 0 && (row.upper_80 - row.lower_80) / row.forecast < 0.01)
 
