@@ -25,3 +25,6 @@ dist-ssr
 
 # Server-only LLM credentials
 .env.server
+
+# 화면 검증용 임시 파일 (AI 도우미 등)
+.tmp*
