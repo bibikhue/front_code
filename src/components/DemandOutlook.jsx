@@ -10,7 +10,7 @@ const rangeLabel = (row, level) => {
   return lower === upper ? `약 ${lower}` : `${lower}~${upper}`
 }
 
-const rankDetailStyle = { margin: 0, color: '#7f97a9', fontSize: 11, lineHeight: 1.8 }
+const rankDetailStyle = { margin: 0, color: 'var(--text-muted)', fontSize: 'var(--fs-sm)', lineHeight: 1.8 }
 const countryDotStyle = color => ({ display: 'inline-block', width: 8, height: 8, marginRight: 7, borderRadius: '50%', backgroundColor: color })
 
 function RankingList({ rows, kind }) {

@@ -42,12 +42,12 @@ export function MonthlyChart({ rows, compare, isExample = true, color = '#1687ca
     <div className="chart-readout"><span>{monthLabel(selected.month)}</span><strong>{numberLabel(selected.visitors)} <small>명</small></strong><span className="chart-readout-growth">전년 동월 {rateLabel(selected.yoy)}</span></div>
     <svg className="monthly-chart" viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`${isExample ? '예시 데이터의 ' : ''}월별 외국인 방문객 추이. 차트와 표 전환에서 수치를 확인할 수 있습니다.`}>
       <defs><linearGradient id="visitor-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity=".2" /><stop offset="100%" stopColor={color} stopOpacity=".01" /></linearGradient></defs>
-      {[0, 1, 2, 3, 4].map((tick) => <g key={tick}><line x1={left} x2={width - right} y1={y(max * tick / 4)} y2={y(max * tick / 4)} stroke="#e9eef3" strokeDasharray={tick ? '3 4' : undefined} /><text x={left - 10} y={y(max * tick / 4) + 4} textAnchor="end" fill="#8595a4" fontSize="11">{max * tick / 4 / 10000}만</text></g>)}
+      {[0, 1, 2, 3, 4].map((tick) => <g key={tick}><line x1={left} x2={width - right} y1={y(max * tick / 4)} y2={y(max * tick / 4)} stroke="#e9eef3" strokeDasharray={tick ? '3 4' : undefined} /><text x={left - 10} y={y(max * tick / 4) + 4} textAnchor="end" fill="var(--text-muted)" fontSize="var(--fs-xs)" fontVariantNumeric="tabular-nums">{max * tick / 4 / 10000}만</text></g>)}
       <path d={area} fill="url(#visitor-area)" />
       {compare && <polyline points={rows.map((row, i) => `${x(i)},${y(row.previousYear || 0)}`).join(' ')} fill="none" stroke="#a8b9ca" strokeWidth="2" strokeDasharray="5 5" />}
       <polyline points={points} fill="none" stroke={color} strokeWidth="3" strokeLinejoin="round" />
       {rows.map((row, i) => <g key={row.month}>
-        {(i % Math.ceil(rows.length / 6) === 0 || i === rows.length - 1) && <text x={x(i)} y={height - 10} textAnchor="middle" fill="#8595a4" fontSize="11">{compact ? `${Number(row.month.slice(5))}월` : row.month.replace('-', '.')}</text>}
+        {(i % Math.ceil(rows.length / 6) === 0 || i === rows.length - 1) && <text x={x(i)} y={height - 10} textAnchor="middle" fill="var(--text-muted)" fontSize="var(--fs-xs)" fontVariantNumeric="tabular-nums">{compact ? `${Number(row.month.slice(5))}월` : row.month.replace('-', '.')}</text>}
         <circle cx={x(i)} cy={y(row.visitors)} r={selected.month === row.month ? 5 : 3} fill="white" stroke={color} strokeWidth="2" />
         <circle cx={x(i)} cy={y(row.visitors)} r="13" fill="transparent" tabIndex="0" aria-label={`${monthLabel(row.month)}, ${numberLabel(row.visitors)}명, 전년 동월 대비 ${rateLabel(row.yoy)}`} onMouseEnter={() => setHoveredMonth(row.month)} onMouseLeave={() => setHoveredMonth(null)} onFocus={() => setHoveredMonth(row.month)} onBlur={() => setHoveredMonth(null)}><title>{monthLabel(row.month)} · {numberLabel(row.visitors)}명</title></circle>
       </g>)}
