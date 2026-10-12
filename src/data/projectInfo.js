@@ -5,15 +5,14 @@ export const projectSections = [
 ]
 
 export const projectAbout = {
-  heroEyebrow: 'BUSAN TOURISM INSIGHTS',
+  heroEyebrow: '부산 관광 인사이트',
   heroTitleLines: ['부산의 흐름을 읽다.', '관광의 내일을 보다.'],
   heroDescriptionLines: [
     '바다 너머에서 시작된 여행, 데이터로 이어지는 인사이트.',
     '부산 외국인 관광수요의 변화와 가능성을 살펴보세요.',
   ],
   heroLocation: '부산, 바다와 도시가 만나는 곳',
-  heroSignature: 'TEAM MAPSOSA / TOURISM DATA ANALYTICS',
-  introEyebrow: 'ABOUT THE PROJECT',
+  heroSignature: '팀 맙소사 · 관광 데이터 분석',
   introTitleLines: ['감탄을 자아내는 인사이트,', '팀 맙소사.'],
   paragraphs: [
     '부산을 방문하는 외국인 관광객의 수요 패턴과 변화를 분석하는 데이터 분석·시각화·대시보드 개발 프로젝트입니다.',

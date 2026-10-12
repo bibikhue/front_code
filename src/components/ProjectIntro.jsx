@@ -33,11 +33,11 @@ function AboutSection() {
       </div>
     </div>
     <div className="project-about" aria-labelledby="project-about-title">
-      <div className="project-about-heading"><p>{projectAbout.introEyebrow}</p><h2 id="project-about-title">{projectAbout.introTitleLines.map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h2></div>
+      <div className="project-about-heading"><h2 id="project-about-title">{projectAbout.introTitleLines.map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}</h2></div>
       <div className="project-about-copy">{projectAbout.paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}<div className="project-about-actions"><a href="#/project?focus=scope">분석 범위 안내 <span aria-hidden="true">↗</span></a><a href="#/project?focus=data">데이터 출처·기준 <span aria-hidden="true">↗</span></a></div></div>
     </div>
     <div className="project-content-shell project-menu-guide">
-      <div className="project-section-heading"><p>MENU GUIDE</p><h2>메뉴 안내</h2></div>
+      <div className="project-section-heading"><h2>메뉴 안내</h2></div>
       <div className="project-table-region" role="region" aria-label="메뉴 안내 표 가로 스크롤" tabIndex={0}>
         <table className="project-table project-menu-table"><thead><tr><th scope="col">메뉴</th><th scope="col">답하는 질문</th><th scope="col">현재 자료 상태</th></tr></thead><tbody>{projectMenuGuide.map(item => <tr key={item.label}><th scope="row"><a href={item.href}>{item.label} <span aria-hidden="true">↗</span></a></th><td>{item.question}</td><td>{item.status}</td></tr>)}</tbody></table>
       </div>
@@ -47,7 +47,7 @@ function AboutSection() {
 
 function ScopeSection() {
   return <section className="project-content-shell project-detail-section" id="project-scope" tabIndex={-1} aria-labelledby="project-scope-title">
-    <div className="project-section-heading"><p>PROJECT SCOPE</p><h1 id="project-scope-title">분석 범위 안내</h1></div>
+    <div className="project-section-heading"><h1 id="project-scope-title">분석 범위 안내</h1></div>
     <div className="project-scope-grid">
       <div className="project-info-card"><h2>지금 보여주는 것</h2><ul>{projectScope.current.map(item => <li key={item}>{item}</li>)}</ul></div>
       <div className="project-info-card"><h2>아직 준비 중인 것</h2><ul>{projectScope.pending.map(item => <li key={item}>{item}</li>)}</ul></div>
@@ -58,7 +58,7 @@ function ScopeSection() {
 
 function DataSection() {
   return <section className="project-content-shell project-detail-section" id="project-data" tabIndex={-1} aria-labelledby="project-data-title">
-    <div className="project-section-heading"><p>DATA SOURCES & DEFINITIONS</p><h1 id="project-data-title">데이터 출처·기준</h1></div>
+    <div className="project-section-heading"><h1 id="project-data-title">데이터 출처·기준</h1></div>
     <div className="project-info-card">
       <h2>자료 출처와 현재 상태</h2>
       <div className="project-table-region" role="region" aria-label="데이터 출처 표 가로 스크롤" tabIndex={0}>

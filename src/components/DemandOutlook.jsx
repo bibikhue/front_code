@@ -74,7 +74,7 @@ export default function DemandOutlook() {
 
   return <div className="dashboard-outlook-grid">
     <section className="overview-panel dashboard-forecast" aria-labelledby="forecast-title">
-      <div className="panel-heading"><div><p className="dashboard-small-eyebrow">NEXT MONTH</p><h2 id="forecast-title">다음 달 주목할 국가</h2><p>{targetMonth ? `${monthLabel(targetMonth)} 전망 · 방문객 자료 ${monthLabel(data.asOf)} 기준` : '예측 자료 확인 중'}</p></div><span className="panel-badge">{ranking === 'growth' && modelRows.length ? `${bestAccuracy.model} 예측 · 예시 자료` : '기준 예측(M1) · 예시 자료'}</span></div>
+      <div className="panel-heading"><div><h2 id="forecast-title">다음 달 주목할 국가</h2><p>{targetMonth ? `${monthLabel(targetMonth)} 전망 · 방문객 자료 ${monthLabel(data.asOf)} 기준` : '예측 자료 확인 중'}</p></div><span className="panel-badge">{ranking === 'growth' && modelRows.length ? `${bestAccuracy.model} 예측 · 예시 자료` : '기준 예측(M1) · 예시 자료'}</span></div>
       <div className="chart-view-toggle forecast-ranking-toggle" aria-label="예측 순위 기준"><button type="button" aria-pressed={ranking === 'volume'} onClick={() => setRanking('volume')}>예상 방문 규모</button><button type="button" aria-pressed={ranking === 'growth'} onClick={() => setRanking('growth')}>전년 동월 대비 예상 증가율</button></div>
       {!data ? <div className="dashboard-forecast-empty" role={load.error ? 'alert' : 'status'}><p>{load.error || '예측 자료를 불러오고 있습니다.'}</p>{load.error && <button type="button" className="dashboard-detail-link" onClick={() => { setLoad({ data: null, error: null }); setRetry(value => value + 1) }}>다시 시도</button>}</div> :
         <div className="dashboard-forecast-empty" aria-live="polite">

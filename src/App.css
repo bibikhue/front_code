@@ -8,7 +8,7 @@
 .header-logo { display: block; width: auto; height: 78px; object-fit: contain; }
 .brand-description { font-size: var(--fs-sm); font-weight: 500; letter-spacing: -.4px; line-height: 1.7; color: var(--text-muted); }
 .header-actions { display: flex; align-items: center; gap: 18px; padding-top: 3px; }
-.search-box { display: flex; align-items: center; width: 256px; height: 42px; background: #f3f3f3; border-radius: var(--radius-sm); }
+.search-box { display: flex; align-items: center; width: 256px; height: 42px; background: var(--surface-alt); border-radius: var(--radius-sm); }
 .search-box input { min-width: 0; flex: 1; border: none; outline: none; padding: 0 0 0 26px; background: transparent; color: var(--text-strong); font-size: var(--fs-md); letter-spacing: -.4px; height: 100%; }
 .search-box:focus-within { outline: 2px solid var(--accent); }
 .search-box input::placeholder { color: var(--text-muted); }
@@ -28,7 +28,7 @@
 .navigation-item:last-child .dropdown { left: auto; right: -15px; }
 .dropdown button { display: block; width: 100%; text-align: left; padding: 12px 10px; font-size: var(--fs-md); border-radius: var(--radius-sm); }
 .dropdown button:hover { background: #f0f7fb; color: var(--accent); }
-.notice-bar { background: #f7f7f7; }
+.notice-bar { background: var(--surface-alt); }
 .notice-inner { max-width: 1440px; height: 42px; padding: 0 39px 0 25px; margin: 0 auto; display: flex; align-items: center; gap: 13px; }
 .notice-badge { display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex-shrink: 0; height: 27px; min-width: 63px; border-radius: var(--radius-pill); background: #005ca4; color: #fff; font-size: var(--fs-xs); font-weight: 700; }
 .notice-badge span { border-radius: 50%; background: white; color: var(--accent); font-family: inherit; font-size: var(--fs-xs); line-height: 16px; width: 16px; height: 16px; text-align: center; }
@@ -38,7 +38,7 @@
 #root { display: flex; flex-direction: column; min-height: 100svh; }
 .site-header { flex-shrink: 0; }
 .dashboard-main { flex: 1; min-height: 280px; background: #fff; }
-.site-footer { flex-shrink: 0; background: #f6f7f8; color: var(--text); border-top: 1px solid #eceff1; }
+.site-footer { flex-shrink: 0; background: var(--surface-alt); color: var(--text); border-top: 1px solid #eceff1; }
 .footer-inner { max-width: 1280px; margin: 0 auto; padding: 34px 54px 20px; }
 .footer-content { display: flex; align-items: center; justify-content: space-between; gap: 44px; }
 .footer-intro { display: flex; align-items: center; gap: 23px; }
@@ -103,7 +103,7 @@
 .data-source-list strong { display: block; font-size: var(--fs-base); color: var(--text-strong); }
 .data-source-list span { display: block; margin-top: 5px; font-size: var(--fs-base); color: var(--text-muted); line-height: 1.6; }
 .modal .project-tagline { color: var(--text-strong); font-size: var(--fs-lg); font-weight: 700; }
-.modal .analysis-status { padding: 12px 15px; background: #f3f7fa; border-radius: var(--radius-sm); font-size: var(--fs-base); color: var(--text-muted); }
+.modal .analysis-status { padding: 12px 15px; background: var(--surface-alt); border-radius: var(--radius-sm); font-size: var(--fs-base); color: var(--text-muted); }
 
 /* Preserve the complete team logo and its original proportions. */
 .header-main { height: 90px; align-items: center; padding-bottom: 10px; }
@@ -120,7 +120,7 @@
 }
 
 /* Busan coastal main visual. */
-.dashboard-main { background: #eff7fb; }
+.dashboard-main { background: var(--surface); }
 .busan-hero { position: relative; isolation: isolate; min-height: clamp(490px, 64svh, 740px); display: flex; align-items: center; overflow: hidden; background: #0878b3 url('/images/busan-coast-hero.png') center 53% / cover no-repeat; color: #fff; }
 .busan-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(2, 31, 62, .65) 0%, rgba(2, 42, 77, .43) 32%, rgba(4, 53, 86, .08) 67%, transparent 100%), linear-gradient(0deg, rgba(3, 32, 58, .42), transparent 25%); }
 .hero-content { width: 100%; max-width: 1280px; margin: 0 auto; padding: 54px 54px 106px; }

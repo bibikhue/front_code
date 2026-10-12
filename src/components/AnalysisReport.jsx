@@ -82,7 +82,7 @@ export default function AnalysisReport({ initialFocus = 'overview' }) {
 
   return <div className="analysis-report"><div className="overview-container">
     <div className="overview-breadcrumb"><a href="#/">홈</a><span>›</span><span aria-current="page">분석 리포트</span></div>
-    <div className="overview-title-row"><div><p className="overview-eyebrow">TOURISM INSIGHT REPORT</p><h1>숫자를 읽고, 흐름을 정리하다.</h1><p className="overview-subtitle">대시보드 지표를 한 편의 리포트로. 기간과 관심 시장을 선택해 요약하세요.</p></div><span className="report-mode"><i className={mode === 'llm' ? 'llm' : ''} />{modeLabel(mode)}</span></div>
+    <div className="overview-title-row"><div><h1>숫자를 읽고, 흐름을 정리하다.</h1><p className="overview-subtitle">대시보드 지표를 한 편의 리포트로. 기간과 관심 시장을 선택해 요약하세요.</p></div><span className="report-mode"><i className={mode === 'llm' ? 'llm' : ''} />{modeLabel(mode)}</span></div>
     <div className="overview-demo-notice"><span>예시 자료</span><p>방문객 지표는 실제 관광 통계가 아닙니다. 행사 일정은 부산 MICE 플랫폼의 공식 자료를 별도로 조회합니다.</p></div>
     <div className="report-layout">
       <section className="report-controls" aria-labelledby="report-settings-title">
@@ -104,9 +104,9 @@ export default function AnalysisReport({ initialFocus = 'overview' }) {
       <section className="report-output" ref={output} tabIndex={-1} aria-label="생성된 분석 리포트" aria-busy={busy}>
         {error && <p className="report-error" role="alert">{error} {report ? '아래에는 이전에 생성한 리포트를 유지했습니다.' : ''}</p>}
         {busy && <div className="report-loading" role="status"><span className="report-spinner" />{includeEvents ? '방문객 지표와 공식 행사 일정을 조회하고 있습니다.' : '선택한 대시보드 수치를 요약하고 있습니다.'}</div>}
-        {!report ? <div className="report-empty"><div className="report-empty-icon"><ReportIcon name="document" /></div><p className="overview-eyebrow">YOUR NEXT INSIGHT</p><h2>흩어진 지표를<br />하나의 이야기로.</h2><p>기간과 국가를 선택하고 생성 버튼을 눌러주세요.<br />요약문과 함께 근거 수치, 출처를 확인할 수 있어요.</p><div><span>방문 흐름</span><span>시장 구성</span><span>활용 참고사항</span></div></div> : <>
+        {!report ? <div className="report-empty"><div className="report-empty-icon"><ReportIcon name="document" /></div><h2>흩어진 지표를<br />하나의 이야기로.</h2><p>기간과 국가를 선택하고 생성 버튼을 눌러주세요.<br />요약문과 함께 근거 수치, 출처를 확인할 수 있어요.</p><div><span>방문 흐름</span><span>시장 구성</span><span>활용 참고사항</span></div></div> : <>
           {outdated && <p className="report-outdated" role="status">조회 조건이 변경되었습니다. 아래 리포트는 이전 조건의 결과입니다. 다시 생성해 주세요.</p>}
-          <header className="report-document-header"><div><p className="overview-eyebrow">TEAM MAPSOSA · ANALYSIS REPORT</p><h2>{report.title}</h2><p>{report.evidence.display.period} · {report.focus}</p></div><span className="report-document-mode">{report.mode === 'llm' ? 'LLM 생성' : '수치 요약'}</span></header>
+          <header className="report-document-header"><div><p className="overview-eyebrow">팀 맙소사</p><h2>{report.title}</h2><p>{report.evidence.display.period} · {report.focus}</p></div><span className="report-document-mode">{report.mode === 'llm' ? 'LLM 생성' : '수치 요약'}</span></header>
           <div className="report-document-meta"><span>{formatReportTime(report.generatedAt)} · 한국 시간</span><div><button onClick={copy} disabled={busy}><ReportIcon name="copy" />복사</button><button onClick={download} disabled={busy}><ReportIcon name="download" />텍스트 다운로드</button></div></div>
           <p className="report-copy-status" role="status">{copyStatus}</p>
           <div className="report-summary"><span>한눈에 읽는 요약</span><p>{report.content.summary}</p></div>

@@ -21,8 +21,8 @@ const rangeLabel = (row, level) => {
 const hasNarrowRange = rows => rows.some(row =>
   row.forecast > 0 && (row.upper_80 - row.lower_80) / row.forecast < 0.01)
 
-function SectionHeading({ index, title, description }) {
-  return <div className="outlook-section-heading"><span>{index}</span><h2>{title}</h2><p>{description}</p></div>
+function SectionHeading({ title, description }) {
+  return <div className="outlook-section-heading"><h2>{title}</h2><p>{description}</p></div>
 }
 
 function BusanSection({ data }) {
@@ -42,7 +42,7 @@ function BusanSection({ data }) {
   const checkpoints = [1, 3, 6, 12].map(horizon => forecastRows.find(row => row.horizon === horizon)).filter(Boolean)
 
   return <section className="outlook-panel" id="outlook-busan" tabIndex={-1} aria-labelledby="outlook-busan-title">
-    <div className="outlook-section-top"><SectionHeading index="01 · BUSAN FORECAST" title="부산 방문객 전망" description="최근 24개월 실제값과 향후 12개월의 기준 예측 및 범위를 함께 확인합니다." /><label className="outlook-field">사용 모형<select value={model} onChange={event => setChoice(event.target.value)} aria-label="부산 전망 모형">{availableModels.map(code => <option key={code} value={code}>{code} · {MODEL_NAMES[code]}</option>)}</select></label></div>
+    <div className="outlook-section-top"><SectionHeading title="부산 방문객 전망" description="최근 24개월 실제값과 향후 12개월의 기준 예측 및 범위를 함께 확인합니다." /><label className="outlook-field">사용 모형<select value={model} onChange={event => setChoice(event.target.value)} aria-label="부산 전망 모형">{availableModels.map(code => <option key={code} value={code}>{code} · {MODEL_NAMES[code]}</option>)}</select></label></div>
     <h2 id="outlook-busan-title" className="outlook-visually-hidden">부산 방문객 전망 결과</h2>
     <div className="outlook-method"><strong>{model === 'M1' ? '기준 예측(M1): 작년 같은 달 값을 그대로 사용' : `${model}: ${MODEL_NAMES[model]}`}</strong><span>예측 기준월 {monthLabel(data.asOf)} · 실제값 최종월 {monthLabel(data.asOf)} · 예측값과 범위는 천 명 단위로 반올림해 표시</span></div>
     <div className="outlook-chart-card"><div className="outlook-card-head"><h3>실제 방문객과 예측 범위</h3><p>점 예측은 80%·95% 범위와 함께 표시합니다.</p></div><ForecastBandChart actualRows={actualRows} forecastRows={forecastRows} /><div className="outlook-chart-legend"><span><i className="outlook-actual-line" />실제값</span><span><i className="outlook-forecast-line" />{model} 예측</span><span><i className="outlook-band-80" />80% 범위</span><span><i className="outlook-band-95" />95% 범위</span></div></div>
@@ -85,7 +85,7 @@ function CountriesSection({ data }) {
   const firstOutside = firstSelected && (firstSelected.forecast < firstSelected.lower_80 || firstSelected.forecast > firstSelected.upper_80)
 
   return <section className="outlook-panel" id="outlook-countries" tabIndex={-1} aria-labelledby="outlook-countries-title">
-    <div className="outlook-section-top"><SectionHeading index="02 · COUNTRY FORECAST" title="국가별 방문객 전망" description="국가별 다음 달 규모를 비교하고 선택한 국가의 향후 12개월 전망을 확인합니다." /><div className="outlook-filters"><label className="outlook-field">국가<select value={country.code} onChange={event => setCountryChoice(event.target.value)} aria-label="전망 국가">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="outlook-field">사용 모형<select value={model} onChange={event => setModelChoice(event.target.value)} aria-label="국가별 전망 모형">{availableModels.map(code => <option key={code} value={code}>{code} · {MODEL_NAMES[code]}</option>)}</select></label></div></div>
+    <div className="outlook-section-top"><SectionHeading title="국가별 방문객 전망" description="국가별 다음 달 규모를 비교하고 선택한 국가의 향후 12개월 전망을 확인합니다." /><div className="outlook-filters"><label className="outlook-field">국가<select value={country.code} onChange={event => setCountryChoice(event.target.value)} aria-label="전망 국가">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="outlook-field">사용 모형<select value={model} onChange={event => setModelChoice(event.target.value)} aria-label="국가별 전망 모형">{availableModels.map(code => <option key={code} value={code}>{code} · {MODEL_NAMES[code]}</option>)}</select></label></div></div>
     <h2 id="outlook-countries-title" className="outlook-visually-hidden">국가별 방문객 전망 결과</h2>
     <div className="outlook-method"><strong>{model === 'M1' ? '기준 예측(M1): 작년 같은 달 값을 그대로 사용' : `${model}: ${MODEL_NAMES[model]}`}</strong><span>예측 기준월 {monthLabel(data.asOf)} · 국가별 예측값은 각각 천 명 단위로 반올림해 표시</span></div>
     <div className="outlook-table-scroll" role="region" aria-label="국가별 다음 달 전망 비교표 가로 스크롤" tabIndex="0"><table className="outlook-table"><caption>{firstForecast ? monthLabel(firstForecast.target_month) : '다음 달'} 국가별 방문객 전망 · 기타 포함</caption><thead><tr><th scope="col">국가</th><th scope="col">작년 같은 달 실제값</th><th scope="col">예측값</th><th scope="col">부산 전체 내 비중</th><th scope="col">80% 범위</th></tr></thead><tbody>{comparison.map(({ country: item, row }) => <tr key={item.code}><th scope="row">{item.name}</th><td>{prior ? `${numberLabel(prior.countries.find(value => value.code === item.code)?.visitors)}명` : '자료 없음'}</td><td><strong>{row ? forecastLabel(row.forecast) : '자료 없음'}</strong></td><td>{row && firstForecast ? `${(row.forecast / firstForecast.forecast * 100).toFixed(1)}%` : '—'}</td><td>{row ? rangeLabel(row, 80) : '—'}</td></tr>)}</tbody><tfoot><tr><th scope="row">부산 전체</th><td>{prior ? `${numberLabel(prior.visitors)}명` : '자료 없음'}</td><td><strong>{firstForecast ? forecastLabel(firstForecast.forecast) : '자료 없음'}</strong></td><td>100%</td><td>{firstForecast ? rangeLabel(firstForecast, 80) : '—'}</td></tr></tfoot></table></div>
@@ -121,7 +121,7 @@ function AccuracySection({ data }) {
   const country = data.countryOptions.find(item => item.code === countryCode)
 
   return <section className="outlook-panel" id="outlook-accuracy" tabIndex={-1} aria-labelledby="outlook-accuracy-title">
-    <SectionHeading index="03 · FORECAST ACCURACY" title="예측 정확도" description="롤링 원점 검증 결과를 M1 기준선과 비교합니다." />
+    <SectionHeading title="예측 정확도" description="롤링 원점 검증 결과를 M1 기준선과 비교합니다." />
     <h2 id="outlook-accuracy-title" className="outlook-visually-hidden">모형별 예측 정확도</h2>
     <div className="outlook-accuracy-note">M1은 기준선입니다. 12개월 이내의 모든 예측 기간에서 같은 대상 월에 작년 같은 달 값을 사용하므로, 기간이 달라도 점 예측값은 같습니다. 검증 그래프의 예측값은 천 명 단위로 반올림해 표시하고 실제값은 그대로 표시합니다. MAPE는 실제값 대비 절대 오차의 평균, RMSE는 인원 단위 오차, MASE는 각 기준월까지의 계절성 오차로 나눈 값입니다.</div>
     <div className="outlook-filters"><label className="outlook-field">국가<select value={countryCode} onChange={event => setCountryCode(event.target.value)} aria-label="정확도 국가">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="outlook-field">그래프 모형<select value={model} onChange={event => setModelChoice(event.target.value)} aria-label="검증 그래프 모형">{models.map(code => <option key={code} value={code}>{code} · {MODEL_NAMES[code]}</option>)}</select></label><label className="outlook-field">그래프 예측 기간<select value={horizon} onChange={event => setHorizon(Number(event.target.value))} aria-label="검증 그래프 예측 기간">{Array.from({ length: 12 }, (_, index) => index + 1).map(value => <option key={value} value={value}>{value}개월 뒤</option>)}</select></label></div>
@@ -164,7 +164,7 @@ export default function ForecastOutlook({ focus = 'busan', navigationKey }) {
 
   return <div className="outlook-page"><div className="outlook-shell">
     <nav className="outlook-breadcrumb" aria-label="현재 위치"><a href="#/">홈</a><span aria-hidden="true">›</span><span aria-current="page">관광수요 전망</span></nav>
-    <div className="outlook-page-head"><div><p>BUSAN TOURISM OUTLOOK</p><h1>관광수요 전망</h1><span>실제 방문객 자료와 기준 예측의 범위·정확도를 확인합니다.</span></div><div className="outlook-reference"><strong>예측 기준월 {data ? monthLabel(data.asOf) : '불러오는 중'}</strong><span>{data?.sourceLabel || '방문객 자료 확인 중'}</span></div></div>
+    <div className="outlook-page-head"><div><h1>관광수요 전망</h1><span>실제 방문객 자료와 기준 예측의 범위·정확도를 확인합니다.</span></div><div className="outlook-reference"><strong>예측 기준월 {data ? monthLabel(data.asOf) : '불러오는 중'}</strong><span>{data?.sourceLabel || '방문객 자료 확인 중'}</span></div></div>
     <div className="outlook-demo-notice"><strong>예시 자료</strong><span>방문객 원자료는 화면 미리보기용 예시입니다. M1만 전년 동월값으로 계산했으며 M2~M8 분석 결과는 아직 연결되지 않았습니다.</span></div>
     <nav className="outlook-section-nav" aria-label="관광수요 전망 하위 메뉴">{sections.map(([key, label]) => <a key={key} href={`#/outlook?focus=${key}`} aria-current={activeFocus === key ? 'location' : undefined}>{label}</a>)}</nav>
     {!data ? error ? <div className="outlook-load" role="alert"><p>{error}</p><button type="button" onClick={() => setRetry(value => value + 1)}>다시 시도</button></div> : <p className="outlook-load" role="status">예측 자료를 불러오고 있습니다.</p> : <>

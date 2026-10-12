@@ -20,9 +20,8 @@ const percentLabel = value => value == null ? '—' : `${value.toFixed(1)}%`
 const wonLabel = value => `${numberLabel(Math.round(value))}원`
 const billionLabel = value => `${(value / 100_000_000).toFixed(1)}억원`
 
-function CountryHeading({ eyebrow, title, description, month, isMock = false }) {
+function CountryHeading({ title, description, month, isMock = false }) {
   return <div className="country-section-heading">
-    <p className="overview-eyebrow">{eyebrow}</p>
     <h2>{title}</h2>
     <p>{description}</p>
     {month && <span className="country-heading-month">기준: {monthLabel(month)}{isMock ? ' · 예시 자료' : ''}</span>}
@@ -51,7 +50,7 @@ function CompareSection({ monthly, data, selectedMonth, onMonthChange, openCount
   const topThreeNames = topThree.map(item => item.name).join(' · ')
   const topThreeShare = topThree.reduce((total, item) => total + item.visitors, 0) / monthly.visitors * 100
   return <section className="country-panel country-section" id="country-compare" tabIndex={-1} aria-labelledby="country-compare-title">
-    <div className="country-section-top"><CountryHeading eyebrow="01 · COUNTRY COMPARISON" title="국가 비교" description="방문 규모와 소비 수준을 같은 기준월에서 비교합니다." month={selectedMonth} isMock={data.isMock} /><label className="country-field">기준월<select value={selectedMonth} onChange={event => onMonthChange(event.target.value)} aria-label="국가 비교 기준월">{data.selectableMonths.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label></div>
+    <div className="country-section-top"><CountryHeading title="국가 비교" description="방문 규모와 소비 수준을 같은 기준월에서 비교합니다." month={selectedMonth} isMock={data.isMock} /><label className="country-field">기준월<select value={selectedMonth} onChange={event => onMonthChange(event.target.value)} aria-label="국가 비교 기준월">{data.selectableMonths.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label></div>
     <h2 id="country-compare-title" className="visually-hidden">국가 비교 지표와 차트</h2>
     <div className="country-metrics">
       <MetricCard icon="perVisitor" label="1인당 소비 1위 국가" value={spendingLeader?.name ?? '자료 없음'} detail={spendingLeader ? wonLabel(spendingLeader.perVisitorWon) : '계산 가능한 국가 없음'} accent />
@@ -79,7 +78,7 @@ function DetailSection({ data, monthly, selectedMonth, onMonthChange, selectedCo
   const districts = [...current.districts].sort((a, b) => b.visits - a.visits)
   const industries = [...current.industries].sort((a, b) => b.spendingWon - a.spendingWon)
   return <section className="country-section" id="country-detail" tabIndex={-1} aria-labelledby="country-detail-title">
-    <div className="country-panel"><div className="country-section-top"><CountryHeading eyebrow="02 · COUNTRY DETAIL" title="국가별 상세" description="한 국가의 월별 방문·소비와 지역·업종 구성을 확인합니다." month={selectedMonth} isMock={data.isMock} /><div className="country-selector-group"><label className="country-field">국가<select value={selectedCountry.code} onChange={event => openCountry(event.target.value)} aria-label="상세 국가 선택">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="country-field">기준월<select value={selectedMonth} onChange={event => onMonthChange(event.target.value)} aria-label="국가 상세 기준월">{data.selectableMonths.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label></div></div>
+    <div className="country-panel"><div className="country-section-top"><CountryHeading title="국가별 상세" description="한 국가의 월별 방문·소비와 지역·업종 구성을 확인합니다." month={selectedMonth} isMock={data.isMock} /><div className="country-selector-group"><label className="country-field">국가<select value={selectedCountry.code} onChange={event => openCountry(event.target.value)} aria-label="상세 국가 선택">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="country-field">기준월<select value={selectedMonth} onChange={event => onMonthChange(event.target.value)} aria-label="국가 상세 기준월">{data.selectableMonths.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label></div></div>
       <h2 id="country-detail-title" className="visually-hidden">{selectedCountry.name} 상세 지표</h2>
       <div className="country-selected-name"><i style={{ backgroundColor: selectedCountry.color }} /><strong>{selectedCountry.name}</strong><span>{monthLabel(selectedMonth)}</span></div>
       <div className="country-metrics"><MetricCard icon="visitors" label="방문객" value={numberLabel(current.visitors)} unit="명" change={current.yoyPercent} detail="전년 동월 대비" /><MetricCard icon="spending" label="관광 소비액" value={(current.spendingWon / 100_000_000).toFixed(1)} unit="억원" detail="해당 국가 소비액" /><MetricCard icon="perVisitor" label="1인당 소비액" value={numberLabel(Math.round(current.perVisitorWon))} unit="원" detail="소비액 ÷ 방문객 수" /></div>
@@ -102,7 +101,7 @@ function SeasonSection({ data }) {
   const countries = [...data.countryOptions].sort((a, b) => annualTotal(b.code) - annualTotal(a.code))
   const byKey = new Map(rows.map(item => [`${item.code}:${monthNumber(item.month)}`, item]))
   return <section className="country-panel country-section" id="country-season" tabIndex={-1} aria-labelledby="country-season-title">
-    <CountryHeading eyebrow="03 · SEASONALITY" title="계절성 비교" description="국가별 월평균 방문객 수를 100으로 놓고 각 달의 상대적 수준을 비교합니다." />
+    <CountryHeading title="계절성 비교" description="국가별 월평균 방문객 수를 100으로 놓고 각 달의 상대적 수준을 비교합니다." />
     <h2 id="country-season-title" className="visually-hidden">{year}년 국가별 계절성 히트맵</h2>
     <div className="country-heatmap-intro"><strong>{year}년 월별 방문객 지수</strong><span>100 = 해당 국가의 {year}년 월평균 · 100에서 멀수록 진한 색</span></div>
     <div className="country-heatmap-legend" role="group" aria-label="평균보다 적음 ← 100 → 평균보다 많음"><span>평균보다 적음</span><span aria-hidden="true">←</span><strong>100</strong><span aria-hidden="true">→</span><span>평균보다 많음</span><i aria-hidden="true" /></div>
@@ -113,7 +112,7 @@ function SeasonSection({ data }) {
 }
 
 function InterestSection() {
-  return <section className="country-panel country-section country-coming-soon" id="country-interest" tabIndex={-1} aria-labelledby="country-interest-title"><CountryHeading eyebrow="04 · PLACES OF INTEREST" title="언어권별 관심 관광지" description="언어권별 관심 관광지 자료를 준비하고 있습니다." /><div className="country-soon-card"><span>준비 중</span><h2 id="country-interest-title">관심 관광지 데이터를 준비하고 있습니다.</h2><p>자료가 확보되면 언어권별 구·군 비교와 상위 관광지를 이곳에서 확인할 수 있습니다.</p></div></section>
+  return <section className="country-panel country-section country-coming-soon" id="country-interest" tabIndex={-1} aria-labelledby="country-interest-title"><CountryHeading title="언어권별 관심 관광지" description="언어권별 관심 관광지 자료를 준비하고 있습니다." /><div className="country-soon-card"><span>준비 중</span><h2 id="country-interest-title">관심 관광지 데이터를 준비하고 있습니다.</h2><p>자료가 확보되면 언어권별 구·군 비교와 상위 관광지를 이곳에서 확인할 수 있습니다.</p></div></section>
 }
 
 export default function CountryTourism({ focus = 'compare', country, navigationKey, onOpen }) {
@@ -158,7 +157,7 @@ export default function CountryTourism({ focus = 'compare', country, navigationK
 
   return <div className="country-tourism"><div className="country-shell">
     {breadcrumb}
-    <div className="country-page-head"><div><p className="overview-eyebrow">BUSAN TOURISM BY COUNTRY</p><h1>국가별 관광</h1><p>국가별 방문 규모와 소비, 계절성을 같은 월 기준으로 살펴보세요.</p></div><div className="country-as-of"><strong>데이터 기준월: {monthLabel(data.asOf)}</strong><span>{data.isMock ? '방문객·소비액은 예시 자료' : data.sourceLabel}</span></div></div>
+    <div className="country-page-head"><div><h1>국가별 관광</h1><p>국가별 방문 규모와 소비, 계절성을 같은 월 기준으로 살펴보세요.</p></div><div className="country-as-of"><strong>데이터 기준월: {monthLabel(data.asOf)}</strong><span>{data.isMock ? '방문객·소비액은 예시 자료' : data.sourceLabel}</span></div></div>
     {data.isMock && <div className="country-demo-notice"><strong>예시 자료</strong><span>실제 관광 통계가 아닌 화면 미리보기용 자료입니다. 방문객 수는 부산 관광 한눈에와 같은 원천을 사용합니다.</span></div>}
     <nav className="country-section-nav" aria-label="국가별 관광 하위 메뉴">{sections.map(([key, label]) => <a key={key} href={`#/countries?focus=${key}`} aria-current={activeFocus === key ? 'location' : undefined}>{label}</a>)}</nav>
     {activeFocus === 'compare' && <CompareSection monthly={monthly} data={data} selectedMonth={selectedMonth} onMonthChange={setMonthChoice} openCountry={openCountry} />}

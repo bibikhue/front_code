@@ -34,7 +34,7 @@
 .dashboard-region-note { font-size: var(--fs-base); color: var(--text-muted); line-height: 1.8; margin: -9px 0 13px; }
 .forecast-ranking-toggle { width: fit-content; margin-top: 22px; }
 .dashboard-forecast-empty { padding: 23px 0; }
-.forecast-empty-mark { display: grid; place-items: center; width: 37px; height: 37px; border-radius: var(--radius-md); background: #e8f4fc; color: var(--accent); font-size: var(--fs-xl); margin-bottom: 13px; }
+.forecast-empty-mark { display: grid; place-items: center; width: 37px; height: 37px; border-radius: var(--radius-md); background: var(--tint); color: var(--accent); font-size: var(--fs-xl); margin-bottom: 13px; }
 .dashboard-forecast-empty h3 { font-size: var(--fs-base); margin: 0 0 9px; }
 .dashboard-forecast-empty p { font-size: var(--fs-base); color: var(--text-muted); margin: 0 0 11px; line-height: 1.8; }
 .dashboard-forecast-empty > span:last-child { display: block; font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.8; }

@@ -1,4 +1,4 @@
-.visitor-overview { background: #f3f6fa; color: var(--text-strong); min-height: 70svh; }
+.visitor-overview { background: var(--surface); color: var(--text-strong); min-height: 70svh; }
 .overview-container { max-width: 1280px; margin: 0 auto; padding: 26px 44px 44px; }
 .overview-breadcrumb { display: flex; align-items: center; gap: 9px; font-size: var(--fs-md); color: var(--text-muted); }
 .overview-breadcrumb a:hover { color: var(--accent); }
@@ -7,7 +7,7 @@
 .overview-eyebrow { font-size: var(--fs-sm); letter-spacing: 2.1px; color: var(--text-muted); font-weight: 700; margin: 0 0 9px; }
 .overview-title-row h1 { margin: 0; font-size: var(--fs-2xl); line-height: 1.4; font-weight: 700; letter-spacing: -1.1px; }
 .overview-subtitle { margin: 9px 0 0; font-size: var(--fs-base); line-height: 1.7; color: var(--text-muted); letter-spacing: -.3px; }
-.overview-region { display: inline-flex; align-items: center; gap: 7px; background: #e7eff6; color: var(--text); font-size: var(--fs-xs); padding: 9px 13px; border-radius: var(--radius-pill); flex-shrink: 0; }
+.overview-region { display: inline-flex; align-items: center; gap: 7px; background: var(--tint); color: var(--text); font-size: var(--fs-xs); padding: 9px 13px; border-radius: var(--radius-pill); flex-shrink: 0; }
 .overview-region svg { width: 14px; height: 14px; }
 .overview-demo-notice { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid #e5e3d2; background: #faf9ef; border-radius: var(--radius-sm); font-size: var(--fs-base); color: var(--color-demo); margin-bottom: 18px; }
 .overview-demo-notice > span { font-size: var(--fs-xs); font-weight: 700; background: #efeccf; padding: 4px 7px; border-radius: var(--radius-sm); white-space: nowrap; }
@@ -20,7 +20,7 @@
 .overview-filter-fields select { width: 148px; padding: 9px 12px; background: #fff; border: 1px solid #dce5ed; color: var(--text); border-radius: var(--radius-sm); font-size: var(--fs-md); font-family: inherit; font-variant-numeric: tabular-nums; }
 .filter-range-divider { color: var(--text-muted); font-size: var(--fs-md); margin: 0 4px; }
 .overview-filter-actions button { font-size: var(--fs-md); padding: 8px 12px; border-radius: var(--radius-sm); }
-.range-preset { background: #f1f5f8; color: var(--text); }
+.range-preset { background: var(--surface-alt); color: var(--text); }
 .range-preset:hover { background: #e5f2fb; color: var(--accent); }
 .filter-reset { color: var(--text-muted); }
 .overview-period-caption { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 20px 0 12px; font-size: var(--fs-sm); color: var(--text-muted); font-variant-numeric: tabular-nums; }
@@ -78,10 +78,10 @@
 .overview-table { width: 100%; border-collapse: collapse; font-size: var(--fs-md); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .overview-table th, .overview-table td { padding: 11px 10px; border-bottom: 1px solid #ecf1f5; text-align: right; }
 .overview-table th:first-child { text-align: left; }
-.overview-table thead th { position: sticky; top: 0; background: #f5f8fb; color: var(--text-muted); font-weight: 500; }
+.overview-table thead th { position: sticky; top: 0; background: var(--surface-alt); color: var(--text-muted); font-weight: 500; }
 .overview-table tbody th { font-weight: 400; color: var(--text); }
 .overview-table td { color: var(--text); font-variant-numeric: tabular-nums; }
-.overview-insight { display: flex; align-items: flex-start; gap: 13px; padding: 20px 23px; background: #eaf2f9; border: 1px solid #dce9f3; border-radius: var(--radius-md); margin-top: 20px; }
+.overview-insight { display: flex; align-items: flex-start; gap: 13px; padding: 20px 23px; background: var(--tint); border: 1px solid #dce9f3; border-radius: var(--radius-md); margin-top: 20px; }
 .insight-icon { width: 29px; height: 29px; border-radius: var(--radius-sm); background: #dcecf7; color: var(--text-muted); display: grid; place-items: center; flex-shrink: 0; }
 .insight-icon svg { width: 17px; height: 17px; }
 .overview-insight h2 { font-size: var(--fs-xl); margin: 1px 0 8px; color: var(--text-strong); }
