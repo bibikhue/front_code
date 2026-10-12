@@ -17,8 +17,8 @@
 .mice-day.today i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .mice-density-0 { background: #f4f7fa; color: var(--text); }
 .mice-density-1 { background: #e6f3fc; color: var(--accent); }
-.mice-density-2 { background: #a9d7f1; color: #286587; }
-.mice-density-3 { background: #62acda; color: #164f75; }
+.mice-density-2 { background: #a9d7f1; color: var(--text-strong); }
+.mice-density-3 { background: #62acda; color: var(--text-strong); }
 .mice-density-4 { background: #1879b2; color: white; }
 .mice-day.selected { outline: 2px solid #164e77; outline-offset: 1px; }
 .mice-day:focus-visible { outline: 2px solid #164e77; outline-offset: 2px; }

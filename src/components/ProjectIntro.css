@@ -2,7 +2,7 @@
 .project-nav-shell { max-width: 1280px; min-width: 0; margin: 0 auto; padding: 24px 54px; }
 .project-section-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .project-section-nav a { min-width: 0; padding: 12px 8px; border: 1px solid #e5ebf1; border-radius: var(--radius-md); background: #fff; color: var(--text-muted); font-size: var(--fs-md); font-weight: 600; text-align: center; line-height: 1.4; }
-.project-section-nav a[aria-current] { border-color: #9dcde8; background: var(--tint); color: var(--accent); }
+.project-section-nav a[aria-current], .project-section-nav a[aria-current]:hover { border-color: var(--accent); background: var(--tint); color: var(--accent); }
 .project-section-nav a:hover { border-color: #9dcde8; background: #eaf6fc; color: var(--accent); }
 .project-about-section, .project-detail-section { min-width: 0; }
 .project-about-section:focus, .project-detail-section:focus { outline: none; }
@@ -20,7 +20,7 @@
 .project-table-region { display: block; width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; border: 1px solid #e5ebf1; border-radius: var(--radius-md); background: #fff; scrollbar-width: thin; }
 #project-data .project-table-region { border: 0; }
 .project-table { width: 100%; border-collapse: collapse; color: var(--text); font-size: var(--fs-md); font-variant-numeric: tabular-nums; line-height: 1.6; text-align: left; }
-.project-table th, .project-table td { padding: 14px 15px; border-bottom: 1px solid #eaf0f4; vertical-align: top; word-break: keep-all; }
+.project-table th, .project-table td { padding: 11px 15px; border-bottom: 1px solid #eaf0f4; vertical-align: top; word-break: keep-all; }
 .project-table thead th { background: var(--surface-alt); color: var(--text-strong); font-weight: 700; white-space: nowrap; }
 .project-table tbody th { color: var(--text-strong); font-weight: 700; }
 .project-table tbody tr:last-child th, .project-table tbody tr:last-child td { border-bottom: 0; }
@@ -30,6 +30,7 @@
 .project-menu-table th:first-child { width: 22%; }
 .project-menu-table th:nth-child(2) { width: 44%; }
 .project-sources-table { min-width: 990px; }
+.project-sources-table th, .project-sources-table td { padding-top: 14px; padding-bottom: 14px; }
 .project-sources-table th:first-child { width: 17%; }
 .project-sources-table th:nth-child(2) { width: 24%; }
 .project-sources-table th:nth-child(3) { width: 16%; }
@@ -66,6 +67,7 @@
   .project-content-shell { padding-right: 16px; padding-left: 16px; }
   .project-info-card { padding: 17px; }
   .project-table th, .project-table td { padding: 12px; }
+  .project-menu-table th, .project-menu-table td { padding-top: 11px; padding-bottom: 11px; }
 }
 
 .project-section-heading h2 { font-size: var(--fs-xl); }

@@ -61,7 +61,7 @@ export default function DataChatbot() {
 
   return <aside className="data-chatbot" aria-label="관광 데이터 챗봇">
     {open && <section className="chat-panel" role="dialog" aria-modal="false" id="chat-panel" aria-labelledby="chat-title" onKeyDown={(event) => { if (event.key === 'Escape') { event.stopPropagation(); close() } }}>
-      <header className="chat-header"><span className="chat-avatar"><Mabi /></span><div><p>YOUR BUSAN DATA BUDDY</p><h2 id="chat-title">홀리모올리 <span>관광 데이터 도우미</span></h2></div><button onClick={close} aria-label="챗봇 닫기"><ChatIcon close /></button></header>
+      <header className="chat-header"><span className="chat-avatar"><Mabi /></span><div><p>관광 데이터로 보는 부산</p><h2 id="chat-title">홀리모올리 <span>관광 데이터 도우미</span></h2></div><button onClick={close} aria-label="챗봇 닫기"><ChatIcon close /></button></header>
       <div className="chat-mode"><span className={mode === 'llm' ? 'llm' : ''} />{mode === 'llm' ? 'LLM 데이터 답변' : mode === 'lookup' ? '데이터 조회 모드 · LLM 연결 전' : '연결 상태 확인 중'}</div>
       <div className="chat-messages" ref={log} role="log" aria-live="polite" aria-relevant="additions text" tabIndex="0">
         {messages.length === 1 && <div className="chat-welcome"><div className="chat-welcome-art"><span className="chat-spark spark-one">✦</span><Mabi /><span className="chat-spark spark-two">✧</span></div><span className="chat-welcome-tag">부산을 읽는 작은 탐험가</span></div>}
@@ -73,6 +73,6 @@ export default function DataChatbot() {
       <p className="chat-data-note">방문객은 예시 자료, 행사는 공식 일정 기준입니다.</p>
       <form className="chat-composer" onSubmit={(event) => { event.preventDefault(); send() }}><label className="visually-hidden" htmlFor="chat-question">데이터 질문</label><textarea id="chat-question" ref={input} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="홀리모올리에게 궁금한 점을 물어보세요" maxLength={1000} rows={2} disabled={busy} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send() } }} /><button type="submit" disabled={!draft.trim() || busy} aria-label="질문 보내기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M12 20V4m-6 6 6-6 6 6" /></svg></button></form>
     </section>}
-    <button className={`chat-launcher ${open ? 'open' : ''}`} ref={launcher} onClick={() => open ? close() : setOpen(true)} aria-expanded={open} aria-controls={open ? 'chat-panel' : undefined} aria-label={open ? '챗봇 접기' : '관광 데이터 챗봇 열기'}>{open ? <ChatIcon close /> : <><span className="chat-launcher-mascot"><Mabi /></span><span className="chat-launcher-copy"><small>궁금한 관광 데이터?</small><strong>홀리모올리에게 물어봐요 <span aria-hidden="true">↗</span></strong></span></>}</button>
+    <button className={`chat-launcher ${open ? 'open' : ''}`} ref={launcher} onClick={() => open ? close() : setOpen(true)} aria-expanded={open} aria-controls={open ? 'chat-panel' : undefined} aria-label={open ? '챗봇 접기' : '관광 데이터 챗봇 열기'}>{open ? <ChatIcon close /> : <span className="chat-launcher-mascot" aria-hidden="true"><Mabi /></span>}</button>
   </aside>
 }

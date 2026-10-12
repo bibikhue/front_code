@@ -12,7 +12,7 @@
 .outlook-demo-notice strong { flex: none; padding: 4px 7px; border-radius: var(--radius-sm); background: #eeebce; font-size: var(--fs-xs); }
 .outlook-section-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 19px; }
 .outlook-section-nav a { min-width: 0; padding: 12px; border: 1px solid #e3eaf0; border-radius: var(--radius-md); background: #fff; color: var(--text-muted); font-size: var(--fs-md); font-weight: 600; text-align: center; text-decoration: none; }
-.outlook-section-nav a[aria-current] { border-color: #95cce7; background: var(--tint); color: var(--accent); }
+.outlook-section-nav a[aria-current], .outlook-section-nav a[aria-current]:hover { border-color: var(--accent); background: var(--tint); color: var(--accent); }
 .outlook-section-nav a:hover { border-color: #95cce7; background: #e9f5fb; color: var(--accent); }
 .outlook-panel { min-width: 0; padding: 25px; border: 1px solid #e4ebf1; border-radius: var(--radius-md); background: #fff; scroll-margin-top: 15px; }
 .outlook-panel:focus { outline: none; }
@@ -44,7 +44,7 @@
 .outlook-caution { border-left: 3px solid #9baec4; background: #f3f6f9; color: var(--text-muted); }
 .outlook-table { width: 100%; min-width: 850px; border-collapse: collapse; white-space: nowrap; font-size: var(--fs-md); font-variant-numeric: tabular-nums; }
 .outlook-table caption { padding: 0 0 10px; color: var(--text-muted); font-weight: 600; text-align: left; }
-.outlook-table th, .outlook-table td { padding: 10px 9px; border-bottom: 1px solid #e9eff4; text-align: right; }
+.outlook-table th, .outlook-table td { padding: 11px 9px; border-bottom: 1px solid #e9eff4; text-align: right; }
 .outlook-table th:first-child { text-align: left; }
 .outlook-table thead th { background: var(--surface-alt); color: var(--text-muted); font-weight: 600; }
 .outlook-table tbody th { color: var(--text-strong); }
