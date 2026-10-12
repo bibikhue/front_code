@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import VisitorOverview from './components/VisitorOverview'
 import ProjectIntro from './components/ProjectIntro'
@@ -8,6 +8,8 @@ import AnalysisReport from './components/AnalysisReport'
 import EventCalendarPage from './components/EventCalendarPage'
 import CountryTourism from './components/CountryTourism'
 import ForecastOutlook from './components/ForecastOutlook'
+import { loadTourismOverviewData } from './data/tourismOverviewData'
+import { monthLabel } from './data/visitorDemo'
 
 const menus = [
   ['부산 관광 한눈에', '핵심 지표 요약', '월별 방문 추이', '지역별 현황', '업종별 소비'],
@@ -15,8 +17,30 @@ const menus = [
   ['관광수요 전망', '부산 방문객 전망', '국가별 방문객 전망', '예측 정확도'],
   ['분석 리포트', '자동 리포트', '관광수요 주요 변화', '국가별 수요 특징', '정책·마케팅 시사점'],
   ['부산 행사 캘린더', '부산 행사 캘린더'],
-  ['프로젝트 소개', '프로젝트 소개', '팀 맙소사 소개', '분석 범위 안내', '데이터 출처·기준'],
+  ['프로젝트 소개', '프로젝트 소개', '분석 범위 안내', '데이터 출처·기준'],
 ]
+const menuDescriptions = {
+  '핵심 지표 요약': '최근 한 달 방문객 수와 소비액',
+  '월별 방문 추이': '월별 방문객 수의 변화',
+  '지역별 현황': '구·군별 방문객과 소비액',
+  '업종별 소비': '업종별 소비액과 비중',
+  '국가 비교': '국가별 방문객 수와 1인당 소비액',
+  '국가별 상세': '국가별 방문 추이와 소비 특성',
+  '계절성 비교': '국가별 성수기와 비수기',
+  '언어권별 관심 관광지': '언어권별 관광지 검색 순위',
+  '부산 방문객 전망': '향후 12개월 방문객 예측',
+  '국가별 방문객 전망': '다음 달 국가별 방문객 예측',
+  '예측 정확도': '예측값과 실제값의 비교',
+  '자동 리포트': '기간과 국가를 골라 만드는 요약 보고서',
+  '관광수요 주요 변화': '선택 기간의 주요 변화 요약',
+  '국가별 수요 특징': '국가별 수요 규모와 비중',
+  '정책·마케팅 시사점': '분석 결과에 따른 대응 방향',
+  '프로젝트 소개': '프로젝트의 목적과 메뉴 구성',
+  '분석 범위 안내': '제공 범위와 해석 시 유의사항',
+  '데이터 출처·기준': '데이터 출처와 용어 설명',
+}
+const pendingMenus = new Set(['언어권별 관심 관광지'])
+const menuPages = ['visitors', 'countries', 'outlook', 'reports', 'events', 'project']
 const visitorRoutes = { '핵심 지표 요약': 'kpi', '월별 방문 추이': 'trend', '지역별 현황': 'region', '업종별 소비': 'industry' }
 const visitorFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(visitorRoutes).includes(focus) ? focus : 'kpi' }
 const countryRoutes = { '국가 비교': 'compare', '국가별 상세': 'detail', '계절성 비교': 'season', '언어권별 관심 관광지': 'interest' }
@@ -24,35 +48,14 @@ const countryFocus = hash => { const focus = new URLSearchParams(hash.split('?')
 const countryCode = hash => new URLSearchParams(hash.split('?')[1] || '').get('country')
 const outlookRoutes = { '부산 방문객 전망': 'busan', '국가별 방문객 전망': 'countries', '예측 정확도': 'accuracy' }
 const outlookFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(outlookRoutes).includes(focus) ? focus : 'busan' }
-const projectRoutes = { '프로젝트 소개': 'about', '팀 맙소사 소개': 'about', '분석 범위 안내': 'scope', '데이터 출처·기준': 'data' }
+const projectRoutes = { '프로젝트 소개': 'about', '분석 범위 안내': 'scope', '데이터 출처·기준': 'data' }
 const projectFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(projectRoutes).includes(focus) ? focus : 'about' }
 const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변화': 'overview', '국가별 수요 특징': 'markets', '국가별 분석 결과': 'markets', '정책·마케팅 시사점': 'implications' }
 const reportFocus = (hash) => new URLSearchParams(hash.split('?')[1] || '').get('focus') || 'overview'
 const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash.split('?')[0] === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : window.location.hash.split('?')[0] === '#/countries' ? 'countries' : window.location.hash.split('?')[0] === '#/outlook' ? 'outlook' : 'dashboard'
 
-const notice = '부산 외국인 관광수요의 흐름을 읽고, 변화와 다음 수요를 전망합니다.'
-const analysisDescriptions = {
-  '관광수요 주요 변화': '부산 외국인 관광수요의 주요 흐름과 변화를 종합해 설명합니다. 분석 과정에서 발견한 특이 변화는 시점과 근거, 해석의 한계를 함께 정리합니다.',
-  '국가별 수요 특징': '국가별 계절성, 수요 변동과 방문 비중을 종합해 각 시장의 특징을 설명합니다. 개별 지표를 넘어 국가 간 공통점과 차이점을 분석 결과로 정리합니다.',
-  '정책·마케팅 시사점': '분석 결과를 바탕으로 관광정책 담당자와 소상공인이 참고할 수 있는 대응 시점, 우선순위와 마케팅 활용 방향을 정리합니다.',
-  '전체 방문 현황': '부산 전체의 월별 외국인 방문객 수, 전년 동월 대비 증감률, 주요 국가 비중을 한 화면에서 비교합니다.',
-  '월별 방문객 추이': '기간을 선택해 부산 외국인 방문객 수의 흐름과 계절적 특징을 살펴봅니다.',
-  '방문객 증감률': '전월 대비와 전년 동월 대비 증감률을 함께 살펴보고, 계절적 변화와 성장 흐름을 구분합니다.',
-  '국가별 방문 규모': '같은 기간의 국가별 방문객 규모와 성장률을 비교합니다.',
-  '국가별 관광 특성': '국가별 방문 추이와 계절적 특징, 수요의 변동성을 종합합니다. 방문목적과 관광객 특성은 부산 단위 자료 확보 여부에 따라 추가합니다.',
-  '국가별 방문 비중': '부산 외국인 방문객 중 각 국가가 차지하는 비중과 그 변화를 비교하고, 주요 국가에 대한 수요 의존도를 살펴봅니다.',
-  '국가별 분석 결과': '국가별 방문 흐름을 분석한 결과와 해석을 정리합니다. 계절성·변동성과 분석 과정에서 파악한 특이 변화는 관련 결과의 설명에 포함합니다.',
-  '부산 방문객 전망': '과거 월별 방문객 데이터를 바탕으로 향후 수요를 예측하고, 전망 범위와 기준 시점을 함께 제공합니다.',
-  '국가별 방문객 전망': '홈에서 다음 달 예상 방문 규모와 예상 증가율을 각각 비교할 수 있도록 구성합니다. 국가별 월별 시계열 자료와 검증된 예측 결과가 확보되면 예상 방문객 수, 예측 범위, 기준월과 모델 검증 결과를 함께 제공합니다.',
-  '예측 정확도': '과거 시점에서 미래 구간을 예측하는 방식으로 검증하고, 전년 동월 기준 예측과 성능을 비교합니다.',
-}
-
 function Icon({ name }) {
   const paths = {
-    search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></>,
-    login: <><path d="M14 4h5v16h-5M3 12h11m-4-4 4 4-4 4" /></>,
-    user: <><circle cx="9" cy="7" r="3" /><path d="M3 20v-3a6 6 0 0 1 12 0v3M19 7v6m-3-3h6" /></>,
-    newsletter: <><rect x="5" y="5" width="14" height="16" rx="2" /><path d="M9 3h6v5H9zM8 12h8M8 16h6" /></>,
     chevron: <path d="m5 9 7 7 7-7" />,
     close: <path d="m6 6 12 12M6 18 18 6" />,
   }
@@ -60,40 +63,31 @@ function Icon({ name }) {
 }
 
 function Logo() {
-  return <a className="brand" href="#/" aria-label="팀 맙소사 관광수요 분석 홈">
-    <img className="header-logo" src="/brand/mapsosa-logo-clean.png" alt="맙소사 · TOURISM DATA ANALYTICS" width="1035" height="1131" />
-    <span className="brand-description">부산 외국인<br />관광수요 분석</span>
+  return <a className="brand" href="#/" aria-label="팀 맙소사 홈">
+    <img className="brand-emblem" src="/brand/mapsosa-emblem-clear.png" alt="" width="64" height="64" />
+    <span className="brand-copy"><strong>맙소사</strong><span>데이터로 읽는 부산 관광</span></span>
   </a>
 }
 
-function Footer({ onOpen }) {
+function Footer({ onOpen, dataStatus }) {
   return <footer className="site-footer">
     <div className="footer-inner">
-      <div className="footer-content">
-        <div className="footer-intro">
-          <a className="footer-brand" href="#/" aria-label="팀 맙소사 홈">
-            <img className="footer-logo" src="/brand/mapsosa-logo-clean.png" alt="맙소사 · TOURISM DATA ANALYTICS" width="1035" height="1131" />
-          </a>
-          <div className="footer-brand-copy">
-            <p className="footer-eyebrow">TEAM MAPSOSA</p>
-            <p className="footer-tagline">감탄을 자아내는 인사이트.</p>
-            <p className="footer-description">데이터에 담긴 부산의 여행을 이해하고,<br />관광의 다음 가능성을 발견합니다.</p>
-          </div>
-        </div>
-        <dl className="footer-project-info">
-          <div><dt>프로젝트</dt><dd>부산 외국인 관광수요 패턴 및 변화 분석</dd></div>
-          <div><dt>제작</dt><dd>팀 맙소사 · 데이터 분석·시각화·대시보드 개발</dd></div>
-          <div><dt>활용 대상</dt><dd>부산시 관광정책 담당자 및 소상공인</dd></div>
-        </dl>
+      <div className="footer-top">
+        <a className="footer-brand" href="#/" aria-label="팀 맙소사 홈">
+          <img className="footer-emblem" src="/brand/mapsosa-emblem-clear.png" alt="" width="44" height="44" />
+          <span className="footer-brand-copy"><strong>맙소사</strong><span>데이터로 읽는 부산 관광</span></span>
+        </a>
+        <nav className="footer-links" aria-label="푸터 메뉴">
+          <a href="#/project?focus=about" onClick={event => { event.preventDefault(); onOpen('프로젝트 소개') }}>프로젝트 소개</a>
+          <a href="#/project?focus=scope" onClick={event => { event.preventDefault(); onOpen('분석 범위 안내') }}>분석 범위 안내</a>
+          <a className="footer-data-link" href="#/project?focus=data" onClick={event => { event.preventDefault(); onOpen('데이터 출처·기준') }}>데이터 출처·기준</a>
+          <button onClick={() => onOpen('사이트맵')}>사이트맵</button>
+        </nav>
       </div>
-      <p className="footer-data-note">자료별 기준 시점과 집계 방식이 다를 수 있으며, 예측 결과는 의사결정을 돕는 참고 정보입니다.</p>
       <div className="footer-bottom">
-        <p className="footer-copyright">© Team Mapsosa. Tourism Data Analytics.</p>
-        <div className="footer-utilities">
-          <button onClick={() => onOpen('데이터 출처·기준')}>데이터 출처·기준</button>
-          <span className="footer-utility-divider" aria-hidden="true" />
-          <button className="footer-top-button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>맨 위로<Icon name="chevron" /></button>
-        </div>
+        <p className="footer-copyright">© 2026 팀 맙소사</p>
+        <p className="footer-data-note"><span className="footer-data-desktop">방문객·소비 {dataStatus?.isMock ? '예시 자료' : '자료'}{dataStatus?.asOf ? `(기준 ${monthLabel(dataStatus.asOf)})` : '(기준 확인 중)'} · 행사 일정 부산 MICE 플랫폼 · 예측은 참고 정보</span><span className="footer-data-mobile">방문객·소비 {dataStatus?.isMock ? '예시 자료' : '자료'}({dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '기준 확인 중'}) · 부산 MICE · 예측 참고</span></p>
+        <button className="footer-top-button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>맨 위로 <span aria-hidden="true">↑</span></button>
       </div>
     </div>
   </footer>
@@ -102,9 +96,18 @@ function Footer({ onOpen }) {
 function App() {
   const [activeMenu, setActiveMenu] = useState(null)
   const [dialog, setDialog] = useState(null)
-  const [query, setQuery] = useState('')
+  const [dataStatus, setDataStatus] = useState(null)
   const [page, setPage] = useState(getPage)
   const [pageHash, setPageHash] = useState(() => window.location.hash)
+  const menuButtons = useRef([])
+  const navigation = useRef(null)
+  useEffect(() => {
+    const controller = new AbortController()
+    loadTourismOverviewData({ signal: controller.signal }).then(data => {
+      setDataStatus({ isMock: data.isMock, asOf: data.asOf })
+    }).catch(error => { if (error.name !== 'AbortError') console.error('데이터 상태를 불러오지 못했습니다.', error) })
+    return () => controller.abort()
+  }, [])
   useEffect(() => {
     document.title = page === 'events' ? '부산 행사 캘린더 | 맙소사' : page === 'reports' ? '자동 분석 리포트 | 맙소사' : page === 'project' ? '프로젝트 소개 | 맙소사' : page === 'visitors' ? '부산 관광 한눈에 | 맙소사' : page === 'countries' ? '국가별 관광 | 맙소사' : page === 'outlook' ? '관광수요 전망 | 맙소사' : '맙소사 | 부산 관광 대시보드'
   }, [page])
@@ -120,10 +123,15 @@ function App() {
     return () => window.removeEventListener('hashchange', updatePage)
   }, [])
   useEffect(() => {
-    const close = (event) => { if (event.key === 'Escape') { setActiveMenu(null); setDialog(null) } }
+    const close = (event) => {
+      if (event.key !== 'Escape') return
+      if (activeMenu !== null && navigation.current?.contains(document.activeElement)) menuButtons.current[activeMenu]?.focus()
+      setActiveMenu(null)
+      setDialog(null)
+    }
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
-  }, [])
+  }, [activeMenu])
   const openCountryHash = destination => {
     setDialog(null)
     const hash = destination.startsWith('#') ? destination : `#${destination}`
@@ -133,7 +141,7 @@ function App() {
         section?.scrollIntoView({ block: 'start', behavior: 'instant' })
         section?.focus({ preventScroll: true })
       })
-    } else window.location.hash = hash.slice(1)
+    } else window.location.assign(hash)
   }
   const openDialog = (title) => {
     setActiveMenu(null)
@@ -147,7 +155,7 @@ function App() {
       const destination = `/visitors?focus=${visitorRoutes[title]}`
       if (window.location.hash === `#${destination}`) {
         requestAnimationFrame(() => { const section = document.getElementById(`visitor-${visitorRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.hash = destination
+      } else window.location.assign(`#${destination}`)
       return
     }
     if (Object.hasOwn(countryRoutes, title) || title === '국가별 방문 규모') {
@@ -159,7 +167,7 @@ function App() {
       const destination = `/outlook?focus=${outlookRoutes[title]}`
       if (window.location.hash === `#${destination}`) {
         requestAnimationFrame(() => { const section = document.getElementById(`outlook-${outlookRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.hash = destination
+      } else window.location.assign(`#${destination}`)
       return
     }
     if (Object.hasOwn(projectRoutes, title)) {
@@ -167,81 +175,69 @@ function App() {
       const destination = `/project?focus=${projectRoutes[title]}`
       if (window.location.hash === `#${destination}`) {
         requestAnimationFrame(() => { const section = document.getElementById(`project-${projectRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.hash = destination
+      } else window.location.assign(`#${destination}`)
       return
     }
     if (title === '부산 행사 캘린더') {
       setDialog(null)
       setPage('events')
-      window.location.hash = '/events'
+      window.location.assign('#/events')
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (Object.hasOwn(reportRoutes, title)) {
       setDialog(null)
       setPage('reports')
-      window.location.hash = `/reports?focus=${reportRoutes[title]}`
+      window.location.assign(`#/reports?focus=${reportRoutes[title]}`)
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (title === '전체 방문 현황') {
       setDialog(null)
       setPage('visitors')
-      window.location.hash = '/visitors'
+      window.location.assign('#/visitors')
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
-    setDialog(title)
+    if (title === '사이트맵') setDialog(title)
   }
 
   return <>
     <header className="site-header">
-      <div className="header-top">
-        <div className="utility-links">
-          <button onClick={() => openDialog('데이터 출처·기준')}>데이터 출처·기준</button><span className="utility-divider" />
-          <button onClick={() => openDialog('사이트맵')}>사이트맵</button>
-        </div>
-        <div className="header-main">
-          <Logo />
-          <div className="header-actions">
-            <form className="search-box" role="search" onSubmit={(event) => { event.preventDefault(); if (query.trim()) openDialog('검색 결과') }}>
-              <input aria-label="통합 검색" placeholder="검색어를 입력해 주세요." value={query} onChange={(event) => setQuery(event.target.value)} />
-              <button type="submit" aria-label="검색"><Icon name="search" /></button>
-            </form>
-            <div className="account-actions">
-              <button onClick={() => openDialog('로그인')}><Icon name="login" />로그인</button>
-              <button onClick={() => openDialog('회원가입')}><Icon name="user" />회원가입</button>
-              <button onClick={() => openDialog('뉴스레터 구독')}><Icon name="newsletter" />뉴스레터 구독</button>
-            </div>
-          </div>
+      <div className="header-main">
+        <Logo />
+        <div className="header-status">
+          {dataStatus?.isMock && <span className="status-badge">예시 자료</span>}
+          <span className="status-description">방문객 자료 기준 <strong>{dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'}</strong></span>
+          <a className="status-source" href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>데이터 출처·기준</a>
         </div>
       </div>
-      <nav className="main-navigation" aria-label="주 메뉴">
-        <div className="navigation-inner">
-          {menus.map(([title, ...items], index) => <div className="navigation-item" key={title}>
-            <button className={`navigation-button ${activeMenu === index ? 'active' : ((page === 'visitors' && title === '부산 관광 한눈에') || (page === 'countries' && title === '국가별 관광') || (page === 'outlook' && title === '관광수요 전망') || (page === 'project' && title === '프로젝트 소개') || (page === 'reports' && title === '분석 리포트') || (page === 'events' && title === '부산 행사 캘린더')) ? 'current' : ''}`} aria-current={((page === 'countries' && title === '국가별 관광') || (page === 'outlook' && title === '관광수요 전망') || (page === 'events' && title === '부산 행사 캘린더')) ? 'page' : undefined} aria-expanded={title === '부산 행사 캘린더' ? undefined : activeMenu === index} aria-controls={title === '부산 행사 캘린더' ? undefined : `menu-${index}`} onClick={() => title === '부산 행사 캘린더' ? openDialog(title) : setActiveMenu(activeMenu === index ? null : index)}>{title}{title !== '부산 행사 캘린더' && <Icon name="chevron" />}</button>
-            {activeMenu === index && <div className="dropdown" id={`menu-${index}`}>{items.map((item) => <button key={item} onClick={() => openDialog(item)}>{item}</button>)}</div>}
-          </div>)}
-        </div>
+      <nav className="main-navigation" aria-label="주 메뉴" ref={navigation}>
+          <div className="navigation-inner">
+            {menus.map(([title, ...items], index) => {
+              const current = page === menuPages[index]
+              const expanded = activeMenu === index
+              return <div className="navigation-item" key={title}>
+                <button ref={element => { menuButtons.current[index] = element }} className={`navigation-button${current ? ' current' : ''}${expanded ? ' active' : ''}`} aria-current={current ? 'page' : undefined} aria-expanded={title === '부산 행사 캘린더' ? undefined : expanded} aria-controls={title === '부산 행사 캘린더' ? undefined : `menu-${index}`} onClick={() => title === '부산 행사 캘린더' ? openDialog(title) : setActiveMenu(expanded ? null : index)}>{title}{title !== '부산 행사 캘린더' && <Icon name="chevron" />}</button>
+                {expanded && <div className="dropdown" id={`menu-${index}`}>{items.map(item => <button key={item} onClick={() => openDialog(item)}><span className="dropdown-copy"><strong>{item}</strong><span>{menuDescriptions[item]}</span></span>{pendingMenus.has(item) && <span className="dropdown-pending">준비 중</span>}</button>)}</div>}
+              </div>
+            })}
+          </div>
       </nav>
-      <div className="notice-bar"><div className="notice-inner">
-        <span className="notice-badge">알림 <span aria-hidden="true">i</span></span>
-        <button className="notice-title" onClick={() => openDialog('분석 범위 안내')}>{notice}</button>
-        <button className="notice-more" onClick={() => openDialog('분석 범위 안내')}>자세히 보기 <span aria-hidden="true">›</span></button>
-      </div></div>
+      <div className="status-mobile-bar">
+        <span className="status-mobile"><span>{dataStatus?.isMock ? '미리보기용 수치' : '방문객·소비 수치'} · 기준 {dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'} · </span><a href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>출처 보기</a></span>
+      </div>
     </header>
     <main className="dashboard-main" aria-label="대시보드" onClick={() => setActiveMenu(null)}>
       {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro focus={projectFocus(pageHash)} navigationKey={pageHash} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
     </main>
-    <Footer onOpen={openDialog} />
+    <Footer onOpen={openDialog} dataStatus={dataStatus} />
+    <div className="footer-chatbot-space" aria-hidden="true" />
     <DataChatbot />
     {dialog && <div className="modal-backdrop" onClick={() => setDialog(null)}>
       <section className="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" onClick={(event) => event.stopPropagation()}>
         <div className="modal-heading"><h1 id="dialog-title">{dialog}</h1><button autoFocus aria-label="닫기" onClick={() => setDialog(null)}><Icon name="close" /></button></div>
-        {dialog === '사이트맵' ? <div className="sitemap">{menus.map(([title, ...items]) => <div key={title}><h2>{title}</h2>{items.map((item) => <button key={item} onClick={() => openDialog(item)}>{item}</button>)}</div>)}</div>
-          : analysisDescriptions[dialog] ? <><p>{analysisDescriptions[dialog]}</p><p className="analysis-status">분석 화면 구성안입니다. 실제 지표와 차트는 검증된 데이터 연동 후 제공합니다.</p></>
-          : dialog === '검색 결과' ? <><p>“{query}” 메뉴 검색 결과</p>{menus.flatMap((menu) => menu.slice(1)).filter((item) => item.includes(query.trim())).map((item) => <button className="search-result" key={item} onClick={() => openDialog(item)}>{item}<span>›</span></button>)}{!menus.some((menu) => menu.slice(1).some((item) => item.includes(query.trim()))) && <p>일치하는 메뉴가 없습니다. 다른 검색어를 입력해 주세요.</p>}</>
-          : <p>{dialog} 서비스는 준비 중입니다.</p>}
+        {dialog === '사이트맵' && <div className="sitemap">{menus.map(([title, ...items]) => <div key={title}><h2>{title}</h2>{items.map((item) => <button key={item} onClick={() => openDialog(item)}>{item}</button>)}</div>)}</div>}
       </section>
     </div>}
   </>

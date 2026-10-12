@@ -4,8 +4,11 @@
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-md: 14px;
+  --fs-menu-title: 15px;
   --fs-base: 16px;
   --fs-lg: 18px;
+  --fs-brand-title: 32px;
+  --fs-brand-title-mobile: 26px;
   --fs-xl: 22px;
   --fs-section-mobile: 20px;
   --fs-2xl: 28px;
@@ -20,6 +23,9 @@
   --color-demo: #6F6128;
   --color-up: #0068A9;
   --color-down: #835417;
+  --footer-text: #D6E2EB;
+  --footer-muted: #B7C9D6;
+  --footer-line: #2B4C64;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-pill: 999px;
