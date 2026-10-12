@@ -1,5 +1,6 @@
 import { Children, cloneElement, useEffect, useState } from 'react'
 import { monthLabel, numberLabel, rateLabel } from '../data/visitorDemo.js'
+import { billionWonLabel, billionWonNumber, wonLabel, wonNumber } from '../data/displayFormat.js'
 import { loadCountryTourismData } from '../data/countryTourismData.js'
 import { MetricCard, MonthlyChart } from './VisitorOverview.jsx'
 import { BubbleChart, SeasonHeatmap, YearLineChart } from './CountryTourismCharts.jsx'
@@ -17,8 +18,7 @@ const monthNumber = month => Number(month.slice(-2))
 const yearNumber = month => Number(month.slice(0, 4))
 const countryIn = (month, code) => month?.countries.find(item => item.code === code)
 const percentLabel = value => value == null ? '—' : `${value.toFixed(1)}%`
-const wonLabel = value => `${numberLabel(Math.round(value))}원`
-const billionLabel = value => `${(value / 100_000_000).toFixed(1)}억원`
+const billionLabel = value => billionWonLabel(value, { compact: true })
 
 function CountryHeading({ title, description, month, isMock = false }) {
   return <div className="country-section-heading">
@@ -81,7 +81,7 @@ function DetailSection({ data, monthly, selectedMonth, onMonthChange, selectedCo
     <div className="country-panel"><div className="country-section-top"><CountryHeading title="국가별 상세" description="한 국가의 월별 방문·소비와 지역·업종 구성을 확인합니다." month={selectedMonth} isMock={data.isMock} /><div className="country-selector-group"><label className="country-field">국가<select value={selectedCountry.code} onChange={event => openCountry(event.target.value)} aria-label="상세 국가 선택">{data.countryOptions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="country-field">기준월<select value={selectedMonth} onChange={event => onMonthChange(event.target.value)} aria-label="국가 상세 기준월">{data.selectableMonths.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label></div></div>
       <h2 id="country-detail-title" className="visually-hidden">{selectedCountry.name} 상세 지표</h2>
       <div className="country-selected-name"><i style={{ backgroundColor: selectedCountry.color }} /><strong>{selectedCountry.name}</strong><span>{monthLabel(selectedMonth)}</span></div>
-      <div className="country-metrics"><MetricCard icon="visitors" label="방문객" value={numberLabel(current.visitors)} unit="명" change={current.yoyPercent} detail="전년 동월 대비" /><MetricCard icon="spending" label="관광 소비액" value={(current.spendingWon / 100_000_000).toFixed(1)} unit="억원" detail="해당 국가 소비액" /><MetricCard icon="perVisitor" label="1인당 소비액" value={numberLabel(Math.round(current.perVisitorWon))} unit="원" detail="소비액 ÷ 방문객 수" /></div>
+      <div className="country-metrics"><MetricCard icon="visitors" label="방문객" value={numberLabel(current.visitors)} unit="명" change={current.yoyPercent} detail="전년 동월 대비" /><MetricCard icon="spending" label="관광 소비액" value={billionWonNumber(current.spendingWon)} unit="억원" detail="해당 국가 소비액" /><MetricCard icon="perVisitor" label="1인당 소비액" value={wonNumber(current.perVisitorWon)} unit="원" detail="소비액 ÷ 방문객 수" /></div>
       <p className="country-summary">{monthLabel(selectedMonth)} {selectedCountry.name} 방문객은 {numberLabel(current.visitors)}명이며, 전년 동월 대비 {rateLabel(current.yoyPercent)}입니다. 관광 소비액은 {billionLabel(current.spendingWon)}, 1인당 소비액은 {wonLabel(current.perVisitorWon)}입니다.</p>
     </div>
     <div className="country-detail-grid">

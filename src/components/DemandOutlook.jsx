@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react'
 import { changeRate, monthLabel, numberLabel, rateLabel } from '../data/visitorDemo.js'
+import { forecastLabel, rangeLabel } from '../data/displayFormat.js'
 import { loadForecastData, MODEL_NAMES } from '../data/forecastData.js'
 import { addMonths } from '../data/forecastM1.js'
-
-const forecastLabel = value => `${numberLabel(Math.round(value / 1000) * 1000)}명`
-const rangeLabel = (row, level) => {
-  const lower = forecastLabel(row[`lower_${level}`])
-  const upper = forecastLabel(row[`upper_${level}`])
-  return lower === upper ? `약 ${lower}` : `${lower}~${upper}`
-}
 
 const rankDetailStyle = { margin: 0, color: 'var(--text-muted)', fontSize: 'var(--fs-sm)', lineHeight: 1.8 }
 const countryDotStyle = color => ({ display: 'inline-block', width: 8, height: 8, marginRight: 7, borderRadius: '50%', backgroundColor: color })

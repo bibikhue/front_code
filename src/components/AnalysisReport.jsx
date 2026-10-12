@@ -7,6 +7,7 @@ import './AnalysisReport.css'
 
 const countries = [['ALL','전체 국가'],['JP','일본'],['CN','중국'],['TW','대만'],['US','미국'],['HK','홍콩'],['ETC','기타']]
 const focuses = [['overview','관광수요 주요 변화'],['markets','국가별 수요 특징'],['implications','정책·마케팅 시사점']]
+const summarySectionTitles = { trend: '방문·소비·기준 예측', markets: '국가·업종·구·군 구성' }
 const defaultOptions = { start: '2025-07', end: '2025-12', country: 'ALL', focus: 'overview', eventMonth: null }
 const modeLabel = mode => mode === 'llm' ? 'LLM 요약 모드' : mode === 'summary' ? '수치 요약 모드 · LLM 연결 전' : mode === 'offline' ? '연결 확인 필요' : '연결 상태 확인 중'
 
@@ -111,8 +112,8 @@ export default function AnalysisReport({ initialFocus = 'overview' }) {
           <p className="report-copy-status" role="status">{copyStatus}</p>
           <div className="report-summary"><span>한눈에 읽는 요약</span><p>{report.content.summary}</p></div>
           <div className="report-evidence-strip"><div><span>월별 합산 방문객 · 예시</span><strong>{report.evidence.display.total}</strong></div><div><span>전년 동일 기간 대비</span><strong>{report.evidence.display.growth}</strong></div><div><span>기간 내 최대 방문월</span><strong>{report.evidence.display.peak}</strong></div></div>
-          <div className="report-sections">{reportSections.filter(([key]) => report.content[key].length).map(([key, title], index) => <section key={key}><span className="report-section-number">0{index + 1}</span><div><h3>{title}</h3>{report.content[key].map((text, i) => <p key={i}>{text}</p>)}</div></section>)}</div>
-          <details className="report-evidence"><summary>요약에 사용한 근거 수치 확인</summary><dl>{Object.entries(report.evidence.display).filter(([key]) => !['period','total','growth','peak'].includes(key)).map(([key, value]) => <div key={key}><dt>{({ latest: '마지막 월 방문객', latestYoy: '전년 동월 대비', latestMom: '전월 대비', markets: '국가 구성', regions: '출발 권역', events: '부산 행사 일정' })[key]}</dt><dd>{Array.isArray(value) ? value.join(' / ') : value}</dd></div>)}</dl></details>
+          <div className="report-sections">{reportSections.filter(([key]) => report.content[key].length).map(([key, title], index) => <section key={key}><span className="report-section-number">0{index + 1}</span><div><h3>{report.mode === 'summary' ? summarySectionTitles[key] || title : title}</h3>{report.content[key].map((text, i) => <p key={i}>{text}</p>)}</div></section>)}</div>
+          <details className="report-evidence"><summary>요약에 사용한 근거 수치 확인</summary><dl>{Object.entries({ ...report.evidence.display, ...report.evidence.supplement }).filter(([key]) => !['period','total','growth','peak'].includes(key)).map(([key, value]) => <div key={key}><dt>{({ latest: '마지막 월 방문객', latestYoy: '전년 동월 대비', latestMom: '전월 대비', markets: '국가 구성', regions: '출발 권역', spendingTotal: '선택 기간 소비 합계', spendingLatest: '마지막 달 소비액', spendingPerVisitor: '마지막 달 1인당 소비액', industries: '업종별 소비 상위 3개', districts: '구·군 방문 상위 3곳', districtNote: '구·군 방문 집계 안내', m1Forecast: '다음 달 M1 기준 예측', m1Range80: 'M1 80% 예측 범위', m1Range95: 'M1 95% 예측 범위', m1Bias: 'M1 예측 범위 안내', events: '부산 행사 일정' })[key]}</dt><dd>{Array.isArray(value) ? value.join(' / ') : value}</dd></div>)}</dl></details>
           <div className="report-sources"><h3>데이터 기준과 출처</h3><p>{report.evidence.note}</p>{report.evidence.events && <><p>{report.evidence.events.note}</p>{report.evidence.events.fetchedAt && <p>행사 조회: {formatReportTime(report.evidence.events.fetchedAt)} · 한국 시간{report.evidence.events.stale ? ' · 이전 자료 사용' : ''}</p>}</>}{report.sources.map(source => <a key={source.id} href={source.url} target={source.url.startsWith('https://') ? '_blank' : undefined} rel={source.url.startsWith('https://') ? 'noopener noreferrer' : undefined}>{source.label} ↗</a>)}{report.mode === 'llm' && <p>LLM 요약은 근거 수치와 함께 확인해 주세요.</p>}</div>
         </>}
       </section>

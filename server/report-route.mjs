@@ -21,7 +21,7 @@ export async function handleReports(request, response, url, { getMonth, send }) 
   try {
     const evidence = await reportEvidence(options, getMonth)
     const content = isLlm ? await llmReport(evidence) : numericSummary(evidence)
-    send(response, 200, { options, mode: isLlm ? 'llm' : 'summary', generatedAt: new Date().toISOString(), isDemo: true, title: `부산 관광 분석 리포트 · ${evidence.country}`, focus: evidence.focus, content, evidence: { display: evidence.display, events: evidence.events, note: evidence.visitors.note }, sources: evidence.sources })
+    send(response, 200, { options, mode: isLlm ? 'llm' : 'summary', generatedAt: new Date().toISOString(), isDemo: true, title: `부산 관광 분석 리포트 · ${evidence.country}`, focus: evidence.focus, content, evidence: { display: evidence.display, supplement: evidence.supplement, events: evidence.events, note: evidence.visitors.note }, sources: evidence.sources })
   } catch {
     // Never silently replace failed LLM output with a template labeled as LLM.
     send(response, 503, { error: '리포트를 생성하지 못했습니다. 데이터 또는 LLM 연결을 확인하고 다시 시도해 주세요.' })

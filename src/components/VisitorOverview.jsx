@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getOverview, monthLabel, numberLabel, rateLabel } from '../data/visitorDemo'
+import { billionWonLabel, billionWonNumber, wonNumber } from '../data/displayFormat.js'
 import { loadTourismOverviewData } from '../data/tourismOverviewData'
 import OverviewTooltip from './OverviewTooltip'
 import OverviewIndustryTrend from './OverviewIndustryTrend'
@@ -57,7 +58,6 @@ export function MonthlyChart({ rows, compare, isExample = true, color = '#1687ca
 }
 
 const sections = [['kpi', '핵심 지표 요약'], ['trend', '월별 방문 추이'], ['region', '지역별 현황'], ['industry', '업종별 소비']]
-const moneyLabel = value => `${(value / 100_000_000).toFixed(1)}억 원`
 
 export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }) {
   const [load, setLoad] = useState(null)
@@ -124,10 +124,10 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
         <div className="overview-metrics">
           <MetricCard icon="visitors" label={`${end === data.asOf ? '최근월' : '선택월'} 외국인 방문객 수`} value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent showChangeIndicator infoTooltip={data.visitorDefinition} />
           <MetricCard icon="globe" label="방문객 1위 국가" value={topCountry.name} detail={`${numberLabel(topCountry.visitors)}명 · 전체 대비 ${topCountry.share.toFixed(1)}%`} href={`#/countries?focus=detail&country=${encodeURIComponent(topCountry.code)}`} actionText="국가별 상세 보기 ↗" />
-          <MetricCard icon="spending" label="외국인 카드 소비액" value={(latest.spending / 100_000_000).toFixed(1)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator />
-          <MetricCard icon="perVisitor" label="1인당 소비액" value={numberLabel(Math.round(latest.perVisitorSpending))} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} />
+          <MetricCard icon="spending" label="외국인 카드 소비액" value={billionWonNumber(latest.spending)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator />
+          <MetricCard icon="perVisitor" label="1인당 소비액" value={wonNumber(latest.perVisitorSpending)} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} />
         </div>
-        <div className="tourism-quick-summary"><strong>{data.isMock ? '예시 자료로 읽는 한눈 요약' : '한눈 요약'}</strong><p>외국인 방문객 {numberLabel(latest.visitors)}명 · 전년 동월 대비 {rateLabel(latest.yoy)} · 방문객 1위 국가 {topCountry.name} {numberLabel(topCountry.visitors)}명(전체 대비 {topCountry.share.toFixed(1)}%) · 카드 소비액 {moneyLabel(latest.spending)}. 아래에서 방문 흐름과 지역·업종별 구성을 확인하세요.</p></div>
+        <div className="tourism-quick-summary"><strong>{data.isMock ? '예시 자료로 읽는 한눈 요약' : '한눈 요약'}</strong><p>외국인 방문객 {numberLabel(latest.visitors)}명 · 전년 동월 대비 {rateLabel(latest.yoy)} · 방문객 1위 국가 {topCountry.name} {numberLabel(topCountry.visitors)}명(전체 대비 {topCountry.share.toFixed(1)}%) · 카드 소비액 {billionWonLabel(latest.spending)}. 아래에서 방문 흐름과 지역·업종별 구성을 확인하세요.</p></div>
       </section>
 
       <section id="visitor-trend" className="overview-panel tourism-section trend-panel" tabIndex={-1} aria-labelledby="visitor-trend-title">
@@ -140,7 +140,7 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
       <section id="visitor-region" className="overview-panel tourism-section" tabIndex={-1} aria-labelledby="visitor-region-title">
         <div className="panel-heading"><div><h2 id="visitor-region-title">지역별 현황 <OverviewTooltip label="구·군 방문객 집계 기준 안내" text={data.districtDefinition} /></h2><p>{monthLabel(end)} · 부산 16개 구·군{data.isMock ? ' · 예시 자료' : ''}</p></div><div className="chart-view-toggle" aria-label="지역별 지표"><button aria-pressed={regionMetric === 'visitors'} onClick={() => setRegionMetric('visitors')}>방문객</button><button aria-pressed={regionMetric === 'spending'} onClick={() => setRegionMetric('spending')}>카드 소비액</button></div></div>
         <div className="tourism-region-summary"><div><span>방문객 상위 3개 구·군 비중</span><strong>{latest.topThreeVisitorShare.toFixed(1)}%</strong><p>구·군별 방문객 집계 합계 대비</p></div><div><span>소비액 상위 3개 구·군 비중</span><strong>{latest.topThreeSpendingShare.toFixed(1)}%</strong><p>구·군별 카드 소비액 합계 대비</p></div></div>
-        <ol className="tourism-region-bars" aria-label={`${monthLabel(end)} 구·군별 ${regionMetric === 'visitors' ? '방문객' : '카드 소비액'} 순위`}>{regionRows.map((district, index) => <li key={district.name}><span className="tourism-region-name"><small>{String(index + 1).padStart(2, '0')}</small>{district.name}</span><span className="tourism-bar-track" aria-hidden="true"><span className={index < 3 ? 'leading' : ''} style={{ width: `${district[regionMetric] / regionMax * 100}%` }} /></span><span className="tourism-region-value"><strong>{regionMetric === 'visitors' ? `${numberLabel(district.visitors)}명` : moneyLabel(district.spending)}</strong><small>{(regionMetric === 'visitors' ? district.visitorShare : district.spendingShare).toFixed(1)}%</small></span></li>)}</ol>
+        <ol className="tourism-region-bars" aria-label={`${monthLabel(end)} 구·군별 ${regionMetric === 'visitors' ? '방문객' : '카드 소비액'} 순위`}>{regionRows.map((district, index) => <li key={district.name}><span className="tourism-region-name"><small>{String(index + 1).padStart(2, '0')}</small>{district.name}</span><span className="tourism-bar-track" aria-hidden="true"><span className={index < 3 ? 'leading' : ''} style={{ width: `${district[regionMetric] / regionMax * 100}%` }} /></span><span className="tourism-region-value"><strong>{regionMetric === 'visitors' ? `${numberLabel(district.visitors)}명` : billionWonLabel(district.spending)}</strong><small>{(regionMetric === 'visitors' ? district.visitorShare : district.spendingShare).toFixed(1)}%</small></span></li>)}</ol>
         <p className="panel-footnote">구·군 방문객은 지역 간 중복 방문을 포함하며 합계가 부산 전체 방문객보다 클 수 있습니다. 순위 비중은 각 지표의 구·군별 합계를 기준으로 계산합니다.</p>
       </section>
 
