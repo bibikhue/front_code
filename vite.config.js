@@ -1,6 +1,15 @@
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
+import { execFileSync } from 'node:child_process'
 import { defineConfig, loadEnv } from 'vite'
+
+function getGitHash() {
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true }).trim() || 'local'
+  } catch {
+    return 'local'
+  }
+}
 
 export default defineConfig(({ mode }) => {
   const { VITE_SITE_URL = '' } = loadEnv(mode, '.', 'VITE_')
@@ -20,6 +29,10 @@ export default defineConfig(({ mode }) => {
   const twitter = (name, content) => ({ tag: 'meta', attrs: { name, content }, injectTo: 'head' })
 
   return {
+    define: {
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __GIT_HASH__: JSON.stringify(getGitHash()),
+    },
     server: { proxy: { '/api/mice': 'http://127.0.0.1:4174', '/api/reports': { target: 'http://127.0.0.1:4174', changeOrigin: false }, '/api/chat': { target: 'http://127.0.0.1:4174', changeOrigin: false } } },
     plugins: [
       {

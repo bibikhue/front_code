@@ -10,6 +10,9 @@ import CountryTourism from './components/CountryTourism'
 import ForecastOutlook from './components/ForecastOutlook'
 import { loadTourismOverviewData } from './data/tourismOverviewData'
 import { monthLabel } from './data/visitorDemo'
+import { formatBuildInfo } from './utils/buildInfo'
+
+const buildInfoLabel = formatBuildInfo(__BUILD_TIME__, __GIT_HASH__)
 
 const menus = [
   ['부산 관광 한눈에', '핵심 지표 요약', '월별 방문 추이', '지역별 현황', '업종별 소비'],
@@ -58,6 +61,7 @@ function Icon({ name }) {
   const paths = {
     chevron: <path d="m5 9 7 7 7-7" />,
     close: <path d="m6 6 12 12M6 18 18 6" />,
+    link: <><path d="M10 13a4.5 4.5 0 0 0 6.4 0l2-2A4.5 4.5 0 0 0 12 4.6l-1.2 1.2" /><path d="M14 11a4.5 4.5 0 0 0-6.4 0l-2 2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2" /></>,
   }
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
 }
@@ -67,6 +71,76 @@ function Logo() {
     <img className="brand-emblem" src="/brand/mapsosa-emblem-clear.png" alt="" width="64" height="64" />
     <span className="brand-copy"><strong>맙소사</strong><span>데이터로 읽는 부산 관광</span></span>
   </a>
+}
+
+function CopyLinkButton({ mobile = false }) {
+  const [copied, setCopied] = useState(false)
+  const [manualUrl, setManualUrl] = useState('')
+  const [announcement, setAnnouncement] = useState('')
+  const resetTimer = useRef(null)
+  const manualInput = useRef(null)
+  const copyButton = useRef(null)
+
+  useEffect(() => {
+    const clearManualUrl = () => setManualUrl('')
+    window.addEventListener('hashchange', clearManualUrl)
+    return () => {
+      window.removeEventListener('hashchange', clearManualUrl)
+      window.clearTimeout(resetTimer.current)
+    }
+  }, [])
+
+  const copyLink = async () => {
+    const url = window.location.href
+    let success = false
+    setManualUrl('')
+
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(url)
+        success = true
+      } catch { /* Use the selection-based fallback below. */ }
+    }
+
+    if (!success) {
+      const area = document.createElement('textarea')
+      area.value = url
+      area.readOnly = true
+      area.tabIndex = -1
+      Object.assign(area.style, { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' })
+      document.body.appendChild(area)
+      try {
+        area.focus()
+        area.select()
+        success = document.execCommand('copy')
+      } catch { /* Offer a selected address when copying is blocked. */ }
+      finally { area.remove() }
+    }
+
+    window.clearTimeout(resetTimer.current)
+    if (success) {
+      copyButton.current?.focus()
+      setCopied(true)
+      setAnnouncement('현재 화면 링크를 복사했습니다')
+      resetTimer.current = window.setTimeout(() => setCopied(false), 2000)
+      return
+    }
+
+    setCopied(false)
+    setManualUrl(url)
+    setAnnouncement('주소가 선택되었습니다. 직접 복사해 주세요')
+    requestAnimationFrame(() => {
+      manualInput.current?.focus()
+      manualInput.current?.select()
+    })
+  }
+
+  return <span className={`copy-link-control${mobile ? ' copy-link-mobile' : ''}`}>
+    <button ref={copyButton} type="button" className="copy-link-button" aria-label={mobile ? copied ? '현재 화면 링크 복사됨' : '현재 화면 링크 복사' : undefined} onClick={copyLink}><Icon name="link" /><span className="copy-link-label">{copied ? '복사됨' : '링크 복사'}</span></button>
+    {mobile && copied && <span className="copy-link-feedback" aria-hidden="true">복사됨</span>}
+    <span className="copy-link-announcement" aria-live="polite">{announcement}</span>
+    {manualUrl && <input className="copy-link-manual" ref={manualInput} aria-label="현재 화면 주소, 직접 복사" value={manualUrl} readOnly onFocus={event => event.target.select()} />}
+  </span>
 }
 
 function Footer({ onOpen, dataStatus }) {
@@ -87,6 +161,7 @@ function Footer({ onOpen, dataStatus }) {
       <div className="footer-bottom">
         <p className="footer-copyright">© 2026 팀 맙소사</p>
         <p className="footer-data-note"><span className="footer-data-desktop">방문객·소비 {dataStatus?.isMock ? '예시 자료' : '자료'}{dataStatus?.asOf ? `(기준 ${monthLabel(dataStatus.asOf)})` : '(기준 확인 중)'} · 행사 일정 부산 MICE 플랫폼 · 예측은 참고 정보</span><span className="footer-data-mobile">방문객·소비 {dataStatus?.isMock ? '예시 자료' : '자료'}({dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '기준 확인 중'}) · 부산 MICE · 예측 참고</span></p>
+        <p className="footer-build-info">{buildInfoLabel}</p>
         <button className="footer-top-button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>맨 위로 <span aria-hidden="true">↑</span></button>
       </div>
     </div>
@@ -203,6 +278,7 @@ function App() {
   }
 
   return <>
+    <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus() }}>본문 바로가기</a>
     <header className="site-header">
       <div className="header-main">
         <Logo />
@@ -210,6 +286,7 @@ function App() {
           {dataStatus?.isMock && <span className="status-badge">예시 자료</span>}
           <span className="status-description">방문객 자료 기준 <strong>{dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'}</strong></span>
           <a className="status-source" href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>데이터 출처·기준</a>
+          <CopyLinkButton />
         </div>
       </div>
       <nav className="main-navigation" aria-label="주 메뉴" ref={navigation}>
@@ -226,9 +303,10 @@ function App() {
       </nav>
       <div className="status-mobile-bar">
         <span className="status-mobile"><span>{dataStatus?.isMock ? '미리보기용 수치' : '방문객·소비 수치'} · 기준 {dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'} · </span><a href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>출처 보기</a></span>
+        <CopyLinkButton mobile />
       </div>
     </header>
-    <main className="dashboard-main" aria-label="대시보드" onClick={() => setActiveMenu(null)}>
+    <main className="dashboard-main" id="main-content" tabIndex={-1} aria-label="대시보드" onClick={() => setActiveMenu(null)}>
       {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro focus={projectFocus(pageHash)} navigationKey={pageHash} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
     </main>
     <Footer onOpen={openDialog} dataStatus={dataStatus} />
