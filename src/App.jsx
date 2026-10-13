@@ -59,6 +59,14 @@ const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변�
 const reportFocus = (hash) => new URLSearchParams(hash.split('?')[1] || '').get('focus') || 'overview'
 const getPage = () => resolvePage(window.location.pathname, window.location.hash)
 const appHashHref = hash => window.location.pathname === '/' || window.location.pathname === '/index.html' ? hash : `/${hash}`
+const navigateToAppHash = hash => {
+  if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+    window.location.assign(hash)
+    return
+  }
+  window.history.pushState(null, '', `/${hash}`)
+  window.dispatchEvent(new HashChangeEvent('hashchange'))
+}
 
 function Icon({ name }) {
   const paths = {
@@ -206,8 +214,26 @@ function App() {
       window.scrollTo({ top: 0, behavior: 'instant' })
     }
     window.addEventListener('hashchange', updatePage)
-    return () => window.removeEventListener('hashchange', updatePage)
+    window.addEventListener('popstate', updatePage)
+    return () => {
+      window.removeEventListener('hashchange', updatePage)
+      window.removeEventListener('popstate', updatePage)
+    }
   }, [])
+  useEffect(() => {
+    if (page !== 'notFound') return undefined
+    const followAppLink = event => {
+      if (event.button !== 0 || event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) return
+      const anchor = event.target instanceof Element ? event.target.closest('a[href^="/#/"]') : null
+      if (!anchor || (anchor.target && anchor.target !== '_self') || anchor.hasAttribute('download')) return
+      const href = anchor.getAttribute('href')
+      event.preventDefault()
+      event.stopPropagation()
+      navigateToAppHash(href.slice(1))
+    }
+    document.addEventListener('click', followAppLink, true)
+    return () => document.removeEventListener('click', followAppLink, true)
+  }, [page])
   useEffect(() => {
     const close = (event) => {
       if (event.key !== 'Escape') return
@@ -227,7 +253,7 @@ function App() {
         section?.scrollIntoView({ block: 'start', behavior: 'instant' })
         section?.focus({ preventScroll: true })
       })
-    } else window.location.assign(appHashHref(hash))
+    } else navigateToAppHash(hash)
   }
   const openDialog = (title) => {
     setActiveMenu(null)
@@ -241,7 +267,7 @@ function App() {
       const destination = `/visitors?focus=${visitorRoutes[title]}`
       if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`visitor-${visitorRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(appHashHref(`#${destination}`))
+      } else navigateToAppHash(`#${destination}`)
       return
     }
     if (Object.hasOwn(countryRoutes, title) || title === '국가별 방문 규모') {
@@ -253,7 +279,7 @@ function App() {
       const destination = `/outlook?focus=${outlookRoutes[title]}`
       if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`outlook-${outlookRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(appHashHref(`#${destination}`))
+      } else navigateToAppHash(`#${destination}`)
       return
     }
     if (Object.hasOwn(projectRoutes, title)) {
@@ -261,27 +287,27 @@ function App() {
       const destination = `/project?focus=${projectRoutes[title]}`
       if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`project-${projectRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(appHashHref(`#${destination}`))
+      } else navigateToAppHash(`#${destination}`)
       return
     }
     if (title === '부산 행사 캘린더') {
       setDialog(null)
       if (getPage() !== 'notFound') setPage('events')
-      window.location.assign(appHashHref('#/events'))
+      navigateToAppHash('#/events')
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (Object.hasOwn(reportRoutes, title)) {
       setDialog(null)
       if (getPage() !== 'notFound') setPage('reports')
-      window.location.assign(appHashHref(`#/reports?focus=${reportRoutes[title]}`))
+      navigateToAppHash(`#/reports?focus=${reportRoutes[title]}`)
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (title === '전체 방문 현황') {
       setDialog(null)
       if (getPage() !== 'notFound') setPage('visitors')
-      window.location.assign(appHashHref('#/visitors'))
+      navigateToAppHash('#/visitors')
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
