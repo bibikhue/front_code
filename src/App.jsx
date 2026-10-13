@@ -68,11 +68,36 @@ const navigateToAppHash = hash => {
   window.dispatchEvent(new HashChangeEvent('hashchange'))
 }
 
+const printTimeLabel = date => {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(date).map(({ type, value }) => [type, value]))
+  return `${parts.year}.${parts.month}.${parts.day} ${parts.hour}:${parts.minute}`
+}
+
+const printSelectionLabel = () => {
+  const main = document.querySelector('.dashboard-main')
+  if (!main) return ''
+  const selections = [...main.querySelectorAll('select')].map(select =>
+    `${select.getAttribute('aria-label') || '선택값'}: ${select.selectedOptions[0]?.textContent.trim() || select.value}`)
+  main.querySelectorAll('.chart-view-toggle').forEach(group => {
+    const selected = group.querySelector('[aria-pressed="true"]')
+    if (selected) selections.push(`${group.getAttribute('aria-label') || '보기 방식'}: ${selected.textContent.trim()}`)
+  })
+  main.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    const label = input.closest('label')?.textContent.trim()
+    if (label) selections.push(`${label}: ${input.checked ? '선택' : '선택 안 함'}`)
+  })
+  return selections.length ? `선택 조건 · ${selections.join(' · ')}` : ''
+}
+
 function Icon({ name }) {
   const paths = {
     chevron: <path d="m5 9 7 7 7-7" />,
     close: <path d="m6 6 12 12M6 18 18 6" />,
     link: <><path d="M10 13a4.5 4.5 0 0 0 6.4 0l2-2A4.5 4.5 0 0 0 12 4.6l-1.2 1.2" /><path d="M14 11a4.5 4.5 0 0 0-6.4 0l-2 2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2" /></>,
+    print: <><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M6 14h12v7H6zM17 12h2" /></>,
   }
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
 }
@@ -187,6 +212,11 @@ function App() {
   const [pageHash, setPageHash] = useState(() => window.location.hash)
   const menuButtons = useRef([])
   const navigation = useRef(null)
+  const printTitle = useRef(null)
+  const printTime = useRef(null)
+  const printUrl = useRef(null)
+  const printSelections = useRef(null)
+  const openedDetails = useRef([])
   useEffect(() => {
     const controller = new AbortController()
     loadTourismOverviewData({ signal: controller.signal }).then(data => {
@@ -244,6 +274,30 @@ function App() {
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [activeMenu])
+  useEffect(() => {
+    const beforePrint = () => {
+      const title = document.title
+      printTitle.current.textContent = title.startsWith('맙소사 | ') ? title.slice('맙소사 | '.length) : title.replace(/ \| 맙소사$/, '')
+      printTime.current.textContent = printTimeLabel(new Date())
+      printUrl.current.textContent = window.location.href
+      printSelections.current.textContent = printSelectionLabel()
+      document.querySelectorAll('.dashboard-main details:not([open])').forEach(detail => {
+        openedDetails.current.push(detail)
+        detail.open = true
+      })
+    }
+    const afterPrint = () => {
+      openedDetails.current.forEach(detail => { detail.open = false })
+      openedDetails.current = []
+    }
+    window.addEventListener('beforeprint', beforePrint)
+    window.addEventListener('afterprint', afterPrint)
+    return () => {
+      window.removeEventListener('beforeprint', beforePrint)
+      window.removeEventListener('afterprint', afterPrint)
+      afterPrint()
+    }
+  }, [])
   const openCountryHash = destination => {
     setDialog(null)
     const hash = destination.startsWith('#') ? destination : `#${destination}`
@@ -316,6 +370,11 @@ function App() {
 
   return <>
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus() }}>본문 바로가기</a>
+    <div className="print-header" hidden>
+      <div className="print-header-top"><div className="print-brand"><img src="/brand/mapsosa-emblem-clear.png" alt="" width="28" height="28" /><strong>맙소사 · 데이터로 읽는 부산 관광</strong></div><strong ref={printTitle} /></div>
+      <p className="print-header-meta">방문객 자료 기준 {dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'} · {dataStatus ? dataStatus.isMock ? '예시 자료' : '실제 자료' : '자료 확인 중'} · 출력 <time ref={printTime} /> · <span ref={printUrl} className="print-url" /></p>
+      <p className="print-context" ref={printSelections} />
+    </div>
     <header className="site-header">
       <div className="header-main">
         <Logo />
@@ -324,6 +383,7 @@ function App() {
           <span className="status-description">방문객 자료 기준 <strong>{dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'}</strong></span>
           <a className="status-source" href={appHashHref('#/project?focus=data')} onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>데이터 출처·기준</a>
           <CopyLinkButton />
+          <button className="copy-link-button print-button" type="button" onClick={() => window.print()}><Icon name="print" />인쇄</button>
         </div>
       </div>
       <nav className="main-navigation" aria-label="주 메뉴" ref={navigation}>

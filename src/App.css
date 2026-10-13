@@ -75,6 +75,7 @@
 .sitemap button:hover { text-decoration: underline; }
 @media (min-width: 801px) and (max-width: 1020px) {
   .header-main { gap: 14px; padding: 0 16px; }
+  .header-status { gap: 5px; }
   .navigation-inner { gap: 0; padding: 0 8px; }
   .navigation-button { gap: 2px; padding: 0 8px; font-size: var(--fs-md); }
   .navigation-button svg { width: 11px; height: 11px; }
