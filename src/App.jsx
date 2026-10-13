@@ -8,9 +8,11 @@ import AnalysisReport from './components/AnalysisReport'
 import EventCalendarPage from './components/EventCalendarPage'
 import CountryTourism from './components/CountryTourism'
 import ForecastOutlook from './components/ForecastOutlook'
+import NotFound from './components/NotFound'
 import { loadTourismOverviewData } from './data/tourismOverviewData'
 import { monthLabel } from './data/visitorDemo'
 import { formatBuildInfo } from './utils/buildInfo'
+import { resolvePage } from './utils/route'
 
 const buildInfoLabel = formatBuildInfo(__BUILD_TIME__, __GIT_HASH__)
 
@@ -55,7 +57,8 @@ const projectRoutes = { '프로젝트 소개': 'about', '분석 범위 안내': 
 const projectFocus = hash => { const focus = new URLSearchParams(hash.split('?')[1] || '').get('focus'); return Object.values(projectRoutes).includes(focus) ? focus : 'about' }
 const reportRoutes = { '자동 리포트': 'overview', '관광수요 주요 변화': 'overview', '국가별 수요 특징': 'markets', '국가별 분석 결과': 'markets', '정책·마케팅 시사점': 'implications' }
 const reportFocus = (hash) => new URLSearchParams(hash.split('?')[1] || '').get('focus') || 'overview'
-const getPage = () => window.location.hash === '#/events' ? 'events' : window.location.hash.startsWith('#/reports') ? 'reports' : window.location.hash.split('?')[0] === '#/project' ? 'project' : window.location.hash.split('?')[0] === '#/visitors' ? 'visitors' : window.location.hash.split('?')[0] === '#/countries' ? 'countries' : window.location.hash.split('?')[0] === '#/outlook' ? 'outlook' : 'dashboard'
+const getPage = () => resolvePage(window.location.pathname, window.location.hash)
+const appHashHref = hash => window.location.pathname === '/' || window.location.pathname === '/index.html' ? hash : `/${hash}`
 
 function Icon({ name }) {
   const paths = {
@@ -67,7 +70,7 @@ function Icon({ name }) {
 }
 
 function Logo() {
-  return <a className="brand" href="#/" aria-label="팀 맙소사 홈">
+  return <a className="brand" href={appHashHref('#/')} aria-label="팀 맙소사 홈">
     <img className="brand-emblem" src="/brand/mapsosa-emblem-clear.png" alt="" width="64" height="64" />
     <span className="brand-copy"><strong>맙소사</strong><span>데이터로 읽는 부산 관광</span></span>
   </a>
@@ -147,14 +150,14 @@ function Footer({ onOpen, dataStatus }) {
   return <footer className="site-footer">
     <div className="footer-inner">
       <div className="footer-top">
-        <a className="footer-brand" href="#/" aria-label="팀 맙소사 홈">
+        <a className="footer-brand" href={appHashHref('#/')} aria-label="팀 맙소사 홈">
           <img className="footer-emblem" src="/brand/mapsosa-emblem-clear.png" alt="" width="44" height="44" />
           <span className="footer-brand-copy"><strong>맙소사</strong><span>데이터로 읽는 부산 관광</span></span>
         </a>
         <nav className="footer-links" aria-label="푸터 메뉴">
-          <a href="#/project?focus=about" onClick={event => { event.preventDefault(); onOpen('프로젝트 소개') }}>프로젝트 소개</a>
-          <a href="#/project?focus=scope" onClick={event => { event.preventDefault(); onOpen('분석 범위 안내') }}>분석 범위 안내</a>
-          <a className="footer-data-link" href="#/project?focus=data" onClick={event => { event.preventDefault(); onOpen('데이터 출처·기준') }}>데이터 출처·기준</a>
+          <a href={appHashHref('#/project?focus=about')} onClick={event => { event.preventDefault(); onOpen('프로젝트 소개') }}>프로젝트 소개</a>
+          <a href={appHashHref('#/project?focus=scope')} onClick={event => { event.preventDefault(); onOpen('분석 범위 안내') }}>분석 범위 안내</a>
+          <a className="footer-data-link" href={appHashHref('#/project?focus=data')} onClick={event => { event.preventDefault(); onOpen('데이터 출처·기준') }}>데이터 출처·기준</a>
           <button onClick={() => onOpen('사이트맵')}>사이트맵</button>
         </nav>
       </div>
@@ -184,7 +187,15 @@ function App() {
     return () => controller.abort()
   }, [])
   useEffect(() => {
-    document.title = page === 'events' ? '부산 행사 캘린더 | 맙소사' : page === 'reports' ? '자동 분석 리포트 | 맙소사' : page === 'project' ? '프로젝트 소개 | 맙소사' : page === 'visitors' ? '부산 관광 한눈에 | 맙소사' : page === 'countries' ? '국가별 관광 | 맙소사' : page === 'outlook' ? '관광수요 전망 | 맙소사' : '맙소사 | 부산 관광 대시보드'
+    document.title = page === 'notFound' ? '화면을 찾을 수 없음 | 맙소사' : page === 'events' ? '부산 행사 캘린더 | 맙소사' : page === 'reports' ? '자동 분석 리포트 | 맙소사' : page === 'project' ? '프로젝트 소개 | 맙소사' : page === 'visitors' ? '부산 관광 한눈에 | 맙소사' : page === 'countries' ? '국가별 관광 | 맙소사' : page === 'outlook' ? '관광수요 전망 | 맙소사' : '맙소사 | 부산 관광 대시보드'
+  }, [page])
+  useEffect(() => {
+    if (page !== 'notFound') return undefined
+    const meta = document.createElement('meta')
+    meta.name = 'robots'
+    meta.content = 'noindex'
+    document.head.appendChild(meta)
+    return () => meta.remove()
   }, [page])
   useEffect(() => {
     const updatePage = () => {
@@ -210,13 +221,13 @@ function App() {
   const openCountryHash = destination => {
     setDialog(null)
     const hash = destination.startsWith('#') ? destination : `#${destination}`
-    if (window.location.hash === hash) {
+    if (window.location.hash === hash && getPage() !== 'notFound') {
       requestAnimationFrame(() => {
         const section = document.getElementById(`country-${countryFocus(hash)}`)
         section?.scrollIntoView({ block: 'start', behavior: 'instant' })
         section?.focus({ preventScroll: true })
       })
-    } else window.location.assign(hash)
+    } else window.location.assign(appHashHref(hash))
   }
   const openDialog = (title) => {
     setActiveMenu(null)
@@ -226,11 +237,11 @@ function App() {
     }
     if (Object.hasOwn(visitorRoutes, title)) {
       setDialog(null)
-      setPage('visitors')
+      if (getPage() !== 'notFound') setPage('visitors')
       const destination = `/visitors?focus=${visitorRoutes[title]}`
-      if (window.location.hash === `#${destination}`) {
+      if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`visitor-${visitorRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(`#${destination}`)
+      } else window.location.assign(appHashHref(`#${destination}`))
       return
     }
     if (Object.hasOwn(countryRoutes, title) || title === '국가별 방문 규모') {
@@ -240,37 +251,37 @@ function App() {
     if (Object.hasOwn(outlookRoutes, title)) {
       setDialog(null)
       const destination = `/outlook?focus=${outlookRoutes[title]}`
-      if (window.location.hash === `#${destination}`) {
+      if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`outlook-${outlookRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(`#${destination}`)
+      } else window.location.assign(appHashHref(`#${destination}`))
       return
     }
     if (Object.hasOwn(projectRoutes, title)) {
       setDialog(null)
       const destination = `/project?focus=${projectRoutes[title]}`
-      if (window.location.hash === `#${destination}`) {
+      if (window.location.hash === `#${destination}` && getPage() !== 'notFound') {
         requestAnimationFrame(() => { const section = document.getElementById(`project-${projectRoutes[title]}`); section?.scrollIntoView({ block: 'start', behavior: 'instant' }); section?.focus({ preventScroll: true }) })
-      } else window.location.assign(`#${destination}`)
+      } else window.location.assign(appHashHref(`#${destination}`))
       return
     }
     if (title === '부산 행사 캘린더') {
       setDialog(null)
-      setPage('events')
-      window.location.assign('#/events')
+      if (getPage() !== 'notFound') setPage('events')
+      window.location.assign(appHashHref('#/events'))
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (Object.hasOwn(reportRoutes, title)) {
       setDialog(null)
-      setPage('reports')
-      window.location.assign(`#/reports?focus=${reportRoutes[title]}`)
+      if (getPage() !== 'notFound') setPage('reports')
+      window.location.assign(appHashHref(`#/reports?focus=${reportRoutes[title]}`))
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
     if (title === '전체 방문 현황') {
       setDialog(null)
-      setPage('visitors')
-      window.location.assign('#/visitors')
+      if (getPage() !== 'notFound') setPage('visitors')
+      window.location.assign(appHashHref('#/visitors'))
       window.scrollTo({ top: 0, behavior: 'instant' })
       return
     }
@@ -285,7 +296,7 @@ function App() {
         <div className="header-status">
           {dataStatus?.isMock && <span className="status-badge">예시 자료</span>}
           <span className="status-description">방문객 자료 기준 <strong>{dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'}</strong></span>
-          <a className="status-source" href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>데이터 출처·기준</a>
+          <a className="status-source" href={appHashHref('#/project?focus=data')} onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>데이터 출처·기준</a>
           <CopyLinkButton />
         </div>
       </div>
@@ -302,12 +313,12 @@ function App() {
           </div>
       </nav>
       <div className="status-mobile-bar">
-        <span className="status-mobile"><span>{dataStatus?.isMock ? '미리보기용 수치' : '방문객·소비 수치'} · 기준 {dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'} · </span><a href="#/project?focus=data" onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>출처 보기</a></span>
+        <span className="status-mobile"><span>{dataStatus?.isMock ? '미리보기용 수치' : '방문객·소비 수치'} · 기준 {dataStatus?.asOf ? monthLabel(dataStatus.asOf) : '확인 중'} · </span><a href={appHashHref('#/project?focus=data')} onClick={event => { event.preventDefault(); openDialog('데이터 출처·기준') }}>출처 보기</a></span>
         <CopyLinkButton mobile />
       </div>
     </header>
-    <main className="dashboard-main" id="main-content" tabIndex={-1} aria-label="대시보드" onClick={() => setActiveMenu(null)}>
-      {page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro focus={projectFocus(pageHash)} navigationKey={pageHash} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
+    <main className="dashboard-main" id="main-content" tabIndex={-1} aria-label={page === 'notFound' ? '잘못된 주소 안내' : '대시보드'} onClick={() => setActiveMenu(null)}>
+      {page === 'notFound' ? <NotFound key={pageHash} requestedAddress={`${window.location.pathname}${window.location.search}${pageHash}`} onOpenSitemap={() => openDialog('사이트맵')} /> : page === 'events' ? <EventCalendarPage /> : page === 'reports' ? <AnalysisReport key={pageHash} initialFocus={reportFocus(pageHash)} /> : page === 'project' ? <ProjectIntro focus={projectFocus(pageHash)} navigationKey={pageHash} /> : page === 'visitors' ? <VisitorOverview onOpen={openDialog} focus={visitorFocus(pageHash)} navigationKey={pageHash} /> : page === 'countries' ? <CountryTourism focus={countryFocus(pageHash)} country={countryCode(pageHash)} navigationKey={pageHash} onOpen={openDialog} /> : page === 'outlook' ? <ForecastOutlook focus={outlookFocus(pageHash)} navigationKey={pageHash} /> : <DashboardHome onOpen={openDialog} />}
     </main>
     <Footer onOpen={openDialog} dataStatus={dataStatus} />
     <div className="footer-chatbot-space" aria-hidden="true" />
