@@ -4,6 +4,8 @@ import { billionWonLabel, billionWonNumber, wonNumber } from '../data/displayFor
 import { loadTourismOverviewData } from '../data/tourismOverviewData'
 import OverviewTooltip from './OverviewTooltip'
 import OverviewIndustryTrend from './OverviewIndustryTrend'
+import Sparkline from './Sparkline'
+import { getRecentMonths } from './sparklineUtils.js'
 import './VisitorOverview.css'
 import './TourismOverview.css'
 
@@ -20,13 +22,15 @@ function OverviewIcon({ name }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
 }
 
-export function MetricCard({ icon, label, value, unit, detail, change, accent, showChangeIndicator = false, valueChange, infoTooltip, href, actionText }) {
+export function MetricCard({ icon, label, value, unit, detail, change, accent, showChangeIndicator = false, valueChange, infoTooltip, href, actionText, trend }) {
   const Card = href ? 'a' : 'article'
-  return <Card className={`overview-metric ${accent ? 'overview-metric-accent' : ''}${href ? ' metric-card-link' : ''}`} href={href}>
+  const hasTrend = Array.isArray(trend) && trend.length >= 3
+  return <Card className={`overview-metric ${accent ? 'overview-metric-accent' : ''}${href ? ' metric-card-link' : ''}${hasTrend ? ' metric-card-with-trend' : ''}`} href={href} aria-label={href && hasTrend ? `${label} ${value}${unit || ''}${actionText ? `, ${actionText}` : ''}` : undefined}>
     <div className="metric-heading"><span>{label}</span><span className="metric-icon"><OverviewIcon name={icon} /></span></div>
     <p className={`metric-value${showChangeIndicator && valueChange !== undefined && valueChange !== null ? valueChange < 0 ? ' metric-value-decrease' : ' metric-value-increase' : ''}`}>{showChangeIndicator && valueChange !== undefined && valueChange !== null && <span className="metric-value-arrow" aria-hidden="true">{valueChange > 0 ? '↑' : valueChange < 0 ? '↓' : '→'}</span>}{value}<span>{unit}</span>{infoTooltip && <OverviewTooltip label={`${label} 집계 기준 안내`} text={infoTooltip} />}</p>
     <div className="metric-detail">{change !== undefined && <span className={change < 0 ? 'metric-change decrease' : 'metric-change'}>{showChangeIndicator && change !== null && <span aria-hidden="true">{change > 0 ? '↑ ' : change < 0 ? '↓ ' : '→ '}</span>}{rateLabel(change)}</span>}<span>{detail}</span></div>
     {actionText && <span className="metric-card-action">{actionText}</span>}
+    {hasTrend && <Sparkline trend={trend} metric={icon} label={label} unit={unit} />}
   </Card>
 }
 
@@ -94,6 +98,7 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
   const start = selectableMonths.includes(period.start) && period.start <= end ? period.start : selectableMonths.includes(`${end.slice(0, 4)}-01`) ? `${end.slice(0, 4)}-01` : selectableMonths[0]
   const rows = data.monthly.filter(row => row.month >= start && row.month <= end)
   const latest = rows.at(-1)
+  const trendRows = getRecentMonths(data.monthly, end)
   const topCountry = getOverview(end, end).countries.find(country => country.code !== 'ETC')
   const selectedIndustry = latest.industries.find(item => item.code === industryCode) || latest.industries[0]
   const regionRows = [...latest.districts].sort((a, b) => b[regionMetric] - a[regionMetric])
@@ -122,10 +127,10 @@ export default function VisitorOverview({ onOpen, focus = 'kpi', navigationKey }
       <section id="visitor-kpi" className="tourism-section tourism-kpi" tabIndex={-1} aria-labelledby="visitor-kpi-title">
         <div className="tourism-section-heading"><div><h2 id="visitor-kpi-title">핵심 지표 요약</h2><p>{monthLabel(end)} 기준{data.isMock ? ' · 예시 자료' : ''}</p></div></div>
         <div className="overview-metrics">
-          <MetricCard icon="visitors" label={`${end === data.asOf ? '최근월' : '선택월'} 외국인 방문객 수`} value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent showChangeIndicator infoTooltip={data.visitorDefinition} />
+          <MetricCard icon="visitors" label={`${end === data.asOf ? '최근월' : '선택월'} 외국인 방문객 수`} value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent showChangeIndicator infoTooltip={data.visitorDefinition} trend={trendRows.map(row => ({ month: row.month, value: row.visitors }))} />
           <MetricCard icon="globe" label="방문객 1위 국가" value={topCountry.name} detail={`${numberLabel(topCountry.visitors)}명 · 전체 대비 ${topCountry.share.toFixed(1)}%`} href={`#/countries?focus=detail&country=${encodeURIComponent(topCountry.code)}`} actionText="국가별 상세 보기 ↗" />
-          <MetricCard icon="spending" label="외국인 카드 소비액" value={billionWonNumber(latest.spending)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator />
-          <MetricCard icon="perVisitor" label="1인당 소비액" value={wonNumber(latest.perVisitorSpending)} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} />
+          <MetricCard icon="spending" label="외국인 카드 소비액" value={billionWonNumber(latest.spending)} unit="억 원" change={latest.spendingYoy} detail="전년 동월 대비" showChangeIndicator trend={trendRows.map(row => ({ month: row.month, value: row.spending }))} />
+          <MetricCard icon="perVisitor" label="1인당 소비액" value={wonNumber(latest.perVisitorSpending)} unit="원" detail="소비액 ÷ 방문객 수 · 원 단위 반올림" infoTooltip={data.perVisitorDefinition} trend={trendRows.map(row => ({ month: row.month, value: row.perVisitorSpending }))} />
         </div>
         <div className="tourism-quick-summary"><strong>{data.isMock ? '예시 자료로 읽는 한눈 요약' : '한눈 요약'}</strong><p>외국인 방문객 {numberLabel(latest.visitors)}명 · 전년 동월 대비 {rateLabel(latest.yoy)} · 방문객 1위 국가 {topCountry.name} {numberLabel(topCountry.visitors)}명(전체 대비 {topCountry.share.toFixed(1)}%) · 카드 소비액 {billionWonLabel(latest.spending)}. 아래에서 방문 흐름과 지역·업종별 구성을 확인하세요.</p></div>
       </section>

@@ -10,6 +10,7 @@ export default function DashboardHome({ onOpen }) {
   const end = selectableMonths.at(-1)
   const start = `${end.slice(0, 4)}-01`
   const annual = getOverview(start, end)
+  const visitorTrend = getOverview(selectableMonths[Math.max(0, selectableMonths.length - 12)], end).rows.map(row => ({ month: row.month, value: row.visitors }))
   const recent = getOverview(selectableMonths.at(-6), end)
   const current = getOverview(end, end)
   const topMarkets = current.countries.filter((country) => country.code !== 'ETC').slice(0, 3)
@@ -21,7 +22,7 @@ export default function DashboardHome({ onOpen }) {
       <div className="overview-title-row"><div><h1>부산 관광 대시보드</h1><p className="overview-subtitle">최근 방문 흐름을 확인하고, 필요한 분석으로 바로 이동하세요.</p></div><span className="dashboard-reference">방문 지표 기준월 <strong>{monthLabel(end)}</strong></span></div>
       <div className="overview-demo-notice"><span>미리보기</span><p>방문객 지표는 <strong>예시 데이터</strong>입니다. 실제 관광 통계 연동 전 화면 미리보기용 자료입니다.</p><button onClick={() => onOpen('데이터 출처·기준')}>데이터 안내 ↗</button></div>
       <section className="overview-metrics" aria-label="최근 주요 방문 지표">
-        <MetricCard icon="visitors" label="최근 월 방문객" value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent />
+        <MetricCard icon="visitors" label="최근 월 방문객" value={numberLabel(latest.visitors)} unit="명" change={latest.yoy} detail="전년 동월 대비" accent trend={visitorTrend} />
         <MetricCard icon="calendar" label={`${end.slice(0, 4)}년 누적 방문객`} value={(annual.total / 10000).toFixed(1)} unit="만 명" change={annual.totalGrowth} detail="전년 동일 기간 대비" />
         <MetricCard icon="trend" label="최근 월 증감률" value={rateLabel(latest.mom)} detail="전월 대비" />
         <MetricCard icon="globe" label="최근 월 주요 방문 국가" value={topMarkets[0].name} unit={`${topMarkets[0].share.toFixed(1)}%`} detail="최근 월 전체 방문객 중 비중" />
